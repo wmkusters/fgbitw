@@ -21,18 +21,15 @@
 
 
 module display(
-    input clk_100mhz,
+    input clk, reset,
     input [15:0] sw,
-//    input logic [1:0] board [8:0][8:0],
-    input btnc, btnu, btnl, btnr, btnd,
+    input logic [1:0] board [8:0][8:0],
     output logic[3:0] vga_r,
     output logic[3:0] vga_b,
     output logic[3:0] vga_g,
     output logic vga_hs,
     output logic vga_vs
     );
-    // create 65mhz system clock, happens to match 1024 x 768 XVGA timing
-    clk_wiz clkdivider(.clk_in1(clk_100mhz), .clk_out1(clk_65mhz));
    
     logic [10:0] hcount;    // pixel on current line
     logic [9:0] vcount;     // line number
@@ -40,29 +37,12 @@ module display(
     logic [11:0] pixel;
     logic [11:0] rgb;  
     
-    xvga xvga1(.vclock_in(clk_65mhz),.hcount_out(hcount),.vcount_out(vcount),
+    xvga xvga1(.vclock_in(clk),.hcount_out(hcount),.vcount_out(vcount),
                .hsync_out(hsync),.vsync_out(vsync),.blank_out(blank));
-
-    // btnc button is user reset
-    logic reset;
-    debounce db1(.reset_in(reset),.clock_in(clk_65mhz),.noisy_in(btnc),.clean_out(reset));
-    
-    parameter [1:0] e = 2'b00;
-    parameter [1:0] bl = 2'b01;
-    parameter [1:0] w = 2'b10;
-    logic [1:0] ex_board [0:8][0:8] =     '{'{e, bl, e, e, e, e, e, e, e},
-                                            '{bl, bl, e, e, e, e, e, e, e},
-                                            '{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, e, e, e, e, w, w},
-                                            '{e, e, e, e, e, e, e, w, e}};
                                             
     logic phsync,pvsync,pblank;
-    go_game gg(.vclock_in(clk_65mhz),.reset_in(reset),
-                .hcount_in(hcount),.vcount_in(vcount), .board(ex_board),
+    go_game gg(.vclock_in(clk),.reset_in(reset),
+                .hcount_in(hcount),.vcount_in(vcount), .board(board),
                 .hsync_in(hsync),.vsync_in(vsync),.blank_in(blank),
                 .phsync_out(phsync),.pvsync_out(pvsync),.pblank_out(pblank),.pixel_out(pixel));
 
@@ -70,26 +50,12 @@ module display(
                    hcount == 512 | vcount == 384);
 
     logic b,hs,vs;
-    always_ff @(posedge clk_65mhz) begin
-      if (sw[1:0] == 2'b01) begin
-         // 1 pixel outline of visible area (white)
-         hs <= hsync;
-         vs <= vsync;
-         b <= blank;
-         rgb <= {12{border}};
-      end else if (sw[1:0] == 2'b10) begin
-         // color bars
-         hs <= hsync;
-         vs <= vsync;
-         b <= blank;
-         rgb <= {{4{hcount[8]}}, {4{hcount[7]}}, {4{hcount[6]}}} ;
-      end else begin
-         // default: pong
+    always_ff @(posedge clk) begin
+         // default: go!
          hs <= phsync;
          vs <= pvsync;
          b <= pblank;
          rgb <= pixel;
-      end
     end
 
 //    assign rgb = sw[0] ? {12{border}} : pixel ; //{{4{hcount[7]}}, {4{hcount[6]}}, {4{hcount[5]}}};
@@ -103,31 +69,6 @@ module display(
     assign vga_vs = ~vs;
 
 endmodule    
-  
-  
-///////////////////////////////////////////////////////////////////////////////
-//
-// Pushbutton Debounce Module (video version - 24 bits)  
-//
-///////////////////////////////////////////////////////////////////////////////
-
-module debounce (input reset_in, clock_in, noisy_in,
-                 output logic clean_out);
-
-   logic [19:0] count;
-   logic new_input;
-
-   always_ff @(posedge clock_in)
-     if (reset_in) begin 
-        new_input <= noisy_in; 
-        clean_out <= noisy_in; 
-        count <= 0; end
-     else if (noisy_in != new_input) begin new_input<=noisy_in; count <= 0; end
-     else if (count == 1000000) clean_out <= new_input;
-     else count <= count+1;
-
-
-endmodule
     
     
 module go_game(
@@ -244,13 +185,20 @@ module go_game(
 //   assign checkerboard = hcount_in[8:6] + vcount_in[8:6];
 
    
-   logic init;
+   logic init, hold;
    always_ff @(posedge vclock_in) begin
        if (reset_in) begin
            i <= 0;
            j <= 0;
-           init <= 0;
+           init <= 1;
+           hold <= 1;
         end else begin
+            if (hold) begin
+                if (hcount_in == 1343 & vcount_in == 805) begin
+                    hold <= 0;
+                    init <= 0;
+                end
+            end
             if (~init & intersection) begin // need to initialize lower bounds
                 hgrid_bounds[i][j] <= {{lower_hbound}, {upper_hbound}};
                 vgrid_bounds[i][j] <= {{lower_vbound}, {upper_vbound}};
@@ -263,7 +211,7 @@ module go_game(
                 end
                 pixel_out <= 0;
             end
-            if (init) begin
+            if (init & ~hold) begin
                 if (hcount_in == hgrid_bounds[i][j][15:0]) j <= j_next;
                 if (vcount_in == vgrid_bounds[i][j][31:16]) i <= i_next;
                 if (tilebound & on_tile) pixel_out <= tilecolor;
