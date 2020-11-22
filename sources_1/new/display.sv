@@ -50,7 +50,7 @@ module display(
     parameter [1:0] e = 2'b00;
     parameter [1:0] bl = 2'b01;
     parameter [1:0] w = 2'b10;
-    logic [1:0] ex_board [8:0][8:0] =     '{'{e, bl, e, e, e, e, e, e, e},
+    logic [1:0] ex_board [0:8][0:8] =     '{'{e, bl, e, e, e, e, e, e, e},
                                             '{bl, bl, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
@@ -133,7 +133,7 @@ endmodule
 module go_game(
    input vclock_in,        // 65MHz clock
    input reset_in,         // 1 to initialize module
-   input logic [1:0] board [8:0][8:0],
+   input logic [1:0] board [0:8][0:8],
    input [10:0] hcount_in, // horizontal index of current pixel (0..1023)
    input [9:0]  vcount_in, // vertical index of current pixel (0..767)
    input hsync_in,         // XVGA horizontal sync signal (active low)
@@ -212,7 +212,10 @@ module go_game(
             default : vgrid = 0;
         endcase
         
-        inbounds = (hcount_in < vline8 + 1 & hcount_in > vline0 - 1 & vcount_in < hline0 + 1 & vcount_in > hline8 - 1);
+        inbounds = (hcount_in < vline8 + 1 & 
+                   hcount_in > vline0 - 1  & 
+                   vcount_in < hline0 + 1  & 
+                   vcount_in > hline8 - 1);
         grid = ((hgrid | vgrid) & inbounds);
         intersection = (hgrid & vgrid & inbounds);
         
@@ -262,8 +265,10 @@ module go_game(
             end
             if (init) begin
                 if (hcount_in == hgrid_bounds[i][j][15:0]) j <= j_next;
-                if (vcount_in == vgrid_bounds[i][j][31:0]) i <= i_next;
+                if (vcount_in == vgrid_bounds[i][j][31:16]) i <= i_next;
                 if (tilebound & on_tile) pixel_out <= tilecolor;
+                if (~tilebound & on_tile & grid) pixel_out <= 0;
+                if (~tilebound & on_tile & ~grid) pixel_out <= {{4{1'b1}}, {4{1'b1}}, {4{1'b0}}};
                 if (~on_tile & grid) pixel_out <= 0;
                 if (~on_tile & ~grid) pixel_out <= {{4{1'b1}}, {4{1'b1}}, {4{1'b0}}};
             end
