@@ -28,7 +28,7 @@ module uar_fsm(
     output logic ready
     );
     
-    parameter CLK_HZ = 100_000_000;
+    parameter CLK_HZ = 65_000_000;
     parameter SAMP_PER_BIT = 16;
     parameter BAUD_RATE = 9600;
     parameter WAIT_TIME = 20_000_000; //time in ns
@@ -79,7 +79,7 @@ module uar_fsm(
         //Changing between states
         case(state)
             WAITING:
-                state <= (count == WAIT_TIME/10) ? ARMED : state;
+                state <= (count == WAIT_TIME*CLK_HZ/1000000000) ? ARMED : state;
             ARMED:
                 state <= (uart_strt) ? READING : state;
             READING:
