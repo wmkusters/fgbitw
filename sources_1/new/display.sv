@@ -141,6 +141,7 @@ module go_game(
    parameter BOARD_LEFT = DISPLAY_WIDTH/2 - BOARD_LENGTH/2;
    parameter BOARD_RIGHT = DISPLAY_WIDTH/2 + BOARD_LENGTH/2;
    parameter BOARD_INTERVAL = BOARD_LENGTH/8;
+   parameter TILE_WIDTH = BOARD_INTERVAL/2-8;
    
    parameter hline0 = BOARD_BOTTOM;
    parameter hline1 = BOARD_BOTTOM - BOARD_INTERVAL;
@@ -162,7 +163,16 @@ module go_game(
    parameter vline7 = BOARD_LEFT + 7*BOARD_INTERVAL;
    parameter vline8 = BOARD_LEFT + 8*BOARD_INTERVAL;
    
-   logic grid, hgrid, vgrid, inbounds;
+   parameter [1:0] b = 2'b01;
+   parameter [1:0] w = 2'b10;
+   
+   logic grid, hgrid, vgrid, inbounds, intersection, on_tile, tilebound;
+   logic [31:0] hgrid_bounds [8:0][8:0];
+   logic [31:0] vgrid_bounds [8:0][8:0];
+   logic [15:0] lower_hbound, upper_hbound, lower_vbound, upper_vbound;
+   logic [11:0] tilecolor;
+   logic [7:0] i, j, i_next, j_next;
+   
    always_comb begin
         case (vcount_in)
             hline0 : hgrid = 1;
@@ -188,25 +198,61 @@ module go_game(
             vline8 : vgrid = 1;
             default : vgrid = 0;
         endcase
+        
         inbounds = (hcount_in < vline8 + 1 & hcount_in > vline0 - 1 & vcount_in < hline0 + 1 & vcount_in > hline8 - 1);
         grid = ((hgrid | vgrid) & inbounds);
+        intersection = (hgrid & vgrid & inbounds);
         
+        lower_hbound = hcount_in - TILE_WIDTH;
+        upper_hbound = hcount_in + TILE_WIDTH;
+        lower_vbound = vcount_in + TILE_WIDTH;
+        upper_vbound = vcount_in - TILE_WIDTH;
+        
+        if (i < 8) i_next = i+1;
+        else i_next = 0;
+        if (j < 8) j_next = j+1;
+        else j_next = 0;
+        
+        tilebound = ((hcount_in > hgrid_bounds[i][j][31:16]) &
+                     (hcount_in < hgrid_bounds[i][j][15:0])  &
+                     (vcount_in > vgrid_bounds[i][j][15:0])  &
+                     (vcount_in < vgrid_bounds[i][j][31:16]));
+        on_tile = (board[i][j] == 2'b01);
+        if (board[i][j] == b) tilecolor = 12'b0;
+        else  tilecolor = 12'b1111_1111_1111;
    end
-   
-   logic [2:0] checkerboard;
    
    assign phsync_out = hsync_in;
    assign pvsync_out = vsync_in;
    assign pblank_out = blank_in;
-   assign checkerboard = hcount_in[8:6] + vcount_in[8:6];
+//   assign checkerboard = hcount_in[8:6] + vcount_in[8:6];
 
-    always_ff @(posedge vclock_in) begin
-        if (reset_in) begin
+   
+   logic init;
+   always_ff @(posedge vclock_in) begin
+       if (reset_in) begin
+           i <= 0;
+           j <= 0;
+           init <= 0;
         end else begin
-            if (grid) begin
+            if (~init & intersection) begin // need to initialize lower bounds
+                hgrid_bounds[i][j] <= {{lower_hbound}, {upper_hbound}};
+                vgrid_bounds[i][j] <= {{lower_vbound}, {upper_vbound}};
+                if (j == 8) i <= i_next;
+                j <= j_next;
+                if ((i == 8) & (j == 8)) begin
+                    init <= 1;
+                    i <= 0;
+                    j <= 0;
+                end
                 pixel_out <= 0;
-            end else begin
-                pixel_out <= {{4{1'b1}}, {4{1'b1}}, {4{1'b0}}};
+            end
+            if (init) begin
+                if (hcount_in == hgrid_bounds[i][j][15:0]) j <= j_next;
+                if (vcount_in == vgrid_bounds[i][j][31:0]) i <= i_next;
+                if (tilebound) pixel_out <= tilecolor;
+                if (~tilebound & grid) pixel_out <= 0;
+                if (~tilebound & ~grid) pixel_out <= {{4{1'b1}}, {4{1'b1}}, {4{1'b0}}};
             end
         end
     end
