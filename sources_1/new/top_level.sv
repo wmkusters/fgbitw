@@ -103,8 +103,8 @@ module top_level(
                     .rst_in(reset),
                     .rx(jb[0]),
                     .ready(rx_ready),
-                    .data_out(rx_bus));                      
-                        
+                    .data_out(rx_bus));  
+                                        
 endmodule
 
 ///////////////////////////////////////////////////////////////////////////////

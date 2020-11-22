@@ -34,16 +34,16 @@ module game_fsm(
     parameter [1:0] b = 2'b01;
     parameter [1:0] w = 2'b10;
     parameter [1:0] e = 2'b00;
-    logic [1:0] BOARD0 [8:0][8:0] =       '{'{e, e, e, e, e, e, e, e, e},
+    logic [1:0] BOARD0 [8:0][8:0] =       '{'{b, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
+                                            '{e, e, e, e, b, e, e, e, e},
+                                            '{e, e, e, b, w, b, e, e, e},
+                                            '{e, e, e, e, b, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, e, e, e, e, e, e}};
-    logic [1:0] BOARD1 [8:0][8:0] =       '{'{e, b, e, e, e, e, e, e, e},
+                                            '{e, e, e, e, e, e, e, e, w}};
+    logic [1:0] BOARD1 [8:0][8:0] =       '{'{w, b, e, e, e, e, e, e, e},
                                             '{b, b, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
@@ -51,7 +51,7 @@ module game_fsm(
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, w, w},
-                                            '{e, e, e, e, e, e, e, w, e}};
+                                            '{e, e, e, e, e, e, e, w, w}};
     
                                               
     logic [1:0] own_board [8:0][8:0];
