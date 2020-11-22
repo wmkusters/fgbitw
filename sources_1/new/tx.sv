@@ -20,43 +20,50 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module serial_tx(   input           clk_in,
-                    input           rst_in,
-                    input           trigger_in,
-                    input [7:0]     val_in,
-                    output logic    data_out);
-    parameter   DIVISOR = 868; //treat this like a constant!!
+module tx (   input           clk_in,
+              input           rst_in,
+              input           trigger_in,
+              input [161:0]   val_in,
+              output logic    data_out);
     
-    logic [9:0]         shift_buffer; //10 bits...interesting
-    logic [31:0]        count;
+    parameter   DIVISOR = 10416; //treat this like a constant!!
+    parameter   DATA_LNGTH = 162;
+    
+    reg   [31:0]        count;
+    reg   [7:0]         shift;
+    
+    logic [163:0]       shift_buffer; 
     logic               send_flag;
 
-    assign shift_buffer = {1'b1, val_in[7], val_in[6], val_in[5], val_in[4], val_in[3], val_in[2], val_in[1], val_in[0], 1'b0};
+    assign shift_buffer = {1'b1, val_in[161:0], 1'b0};
     
-    logic [3:0] shift;
     
-    always_ff @(posedge clk_in)begin
-        if (rst_in)begin
-            count <= 0;
+    always_ff @(posedge clk_in) begin
+        if (rst_in) begin
+            count <= DIVISOR-1;
             send_flag <= 0;
             data_out <= 1'b1;
             shift <= 0;
         end else begin
-            count <= count + 1;
+            count <= count - 1;
+            
             if (trigger_in) begin
                 send_flag <= 1;
-                count <= 0;
+                count <= DIVISOR-1;
             end
+            
             if (send_flag) begin
                 data_out <= shift_buffer[shift];
-                if (count == DIVISOR-1) begin
+                if (count == 0) begin
                     shift <= shift + 1;
                 end
             end
-            if (count == DIVISOR-1) begin
-                count <= 0;
+            
+            if (count == 0) begin
+                count <= DIVISOR-1;
             end
-            if (shift == 10) begin
+            
+            if (shift == DATA_LNGTH + 2) begin
                 shift <= 0;
                 send_flag <= 0;
                 data_out <= 1'b1;

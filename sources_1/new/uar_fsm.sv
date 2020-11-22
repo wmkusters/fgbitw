@@ -83,7 +83,7 @@ module uar_fsm(
             ARMED:
                 state <= (uart_strt) ? READING : state;
             READING:
-                state <= (bd_count == PKT_LNGTH) ? WAITING : state;
+                state <= (bd_count == PKT_LNGTH + 1) ? WAITING : state;
             default:
                 state <= WAITING;
         endcase
