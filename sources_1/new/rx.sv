@@ -19,14 +19,14 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
- module rx(
+module rx(
     input clk_in,
     input logic rst_in,
     input logic rx,
     output logic [161:0] data_out,
     output logic ready
     );
+    
     
     
     
