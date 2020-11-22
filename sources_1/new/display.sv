@@ -47,9 +47,22 @@ module display(
     logic reset;
     debounce db1(.reset_in(reset),.clock_in(clk_65mhz),.noisy_in(btnc),.clean_out(reset));
     
+    parameter [1:0] e = 2'b00;
+    parameter [1:0] bl = 2'b01;
+    parameter [1:0] w = 2'b10;
+    logic [1:0] ex_board [8:0][8:0] =     '{'{e, bl, e, e, e, e, e, e, e},
+                                            '{bl, bl, e, e, e, e, e, e, e},
+                                            '{e, e, e, e, e, e, e, e, e},
+                                            '{e, e, e, e, e, e, e, e, e},
+                                            '{e, e, e, e, e, e, e, e, e},
+                                            '{e, e, e, e, e, e, e, e, e},
+                                            '{e, e, e, e, e, e, e, e, e},
+                                            '{e, e, e, e, e, e, e, w, w},
+                                            '{e, e, e, e, e, e, e, w, e}};
+                                            
     logic phsync,pvsync,pblank;
     go_game gg(.vclock_in(clk_65mhz),.reset_in(reset),
-                .hcount_in(hcount),.vcount_in(vcount),
+                .hcount_in(hcount),.vcount_in(vcount), .board(ex_board),
                 .hsync_in(hsync),.vsync_in(vsync),.blank_in(blank),
                 .phsync_out(phsync),.pvsync_out(pvsync),.pblank_out(pblank),.pixel_out(pixel));
 
@@ -217,7 +230,7 @@ module go_game(
                      (hcount_in < hgrid_bounds[i][j][15:0])  &
                      (vcount_in > vgrid_bounds[i][j][15:0])  &
                      (vcount_in < vgrid_bounds[i][j][31:16]));
-        on_tile = (board[i][j] == 2'b01);
+        on_tile = (board[i][j] == b | board[i][j] == w);
         if (board[i][j] == b) tilecolor = 12'b0;
         else  tilecolor = 12'b1111_1111_1111;
    end
@@ -250,9 +263,9 @@ module go_game(
             if (init) begin
                 if (hcount_in == hgrid_bounds[i][j][15:0]) j <= j_next;
                 if (vcount_in == vgrid_bounds[i][j][31:0]) i <= i_next;
-                if (tilebound) pixel_out <= tilecolor;
-                if (~tilebound & grid) pixel_out <= 0;
-                if (~tilebound & ~grid) pixel_out <= {{4{1'b1}}, {4{1'b1}}, {4{1'b0}}};
+                if (tilebound & on_tile) pixel_out <= tilecolor;
+                if (~on_tile & grid) pixel_out <= 0;
+                if (~on_tile & ~grid) pixel_out <= {{4{1'b1}}, {4{1'b1}}, {4{1'b0}}};
             end
         end
     end
