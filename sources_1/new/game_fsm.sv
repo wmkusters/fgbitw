@@ -21,15 +21,15 @@
 
 
 module game_fsm(
-                input logic clk_in, reset, move_avail, board_sel,
+                input logic clk_in, reset, move_avail, board_sel, rx_ready, comm_sel,
                 input logic [7:0] move,
+                input logic [1:0] board_in [8:0][8:0],
                 output logic [1:0] board [8:0][8:0]
     );
-    parameter RESET_IN = 8'b0000_0000;
-    parameter MOVE_READY = 8'b0000_0001;
-    parameter CYC_BOARDS = 8'b0000_0010;
-    parameter b0 = 8'b0000_0100;
-    parameter b1 = 8'b0000_1000;
+    parameter RESET_IN = 8'b0000_0001;
+    parameter SELF_OUT = 8'b0000_0010;
+    parameter RX_OUT_WAIT = 8'b0000_0100;
+    parameter RX_OUT = 8'b0000_1000;
     
     parameter BRD_CNT = 5;
     parameter [1:0] b = 2'b01;
@@ -55,40 +55,32 @@ module game_fsm(
                                             '{e, e, e, e, e, e, e, w, e}};
     
                                               
-//    logic [1:0] next_board [8:0][8:0];
+    logic [1:0] own_board [8:0][8:0];
     logic [7:0] input_state;
-//    logic [3:0] count;
-//    logic empty;
-//    assign next_board = EMPTY_BOARD;
     
     always_comb begin
 //        if (reset) input_state = RESET_IN;
 //        else if (move_avail) input_state = MOVE_READY;
 //        else input_state = CYC_BOARDS; 
-          if (board_sel) input_state = b1;
-          else input_state = b0;
+          if (~comm_sel) input_state = SELF_OUT;
+          else if (comm_sel & ~rx_ready) input_state = RX_OUT_WAIT;
+          else if (comm_sel & rx_ready) input_state = RX_OUT; 
+          if (board_sel) own_board = BOARD1;
+          else own_board = BOARD0;
+          
     end
     
     always_ff @(posedge clk_in) begin
         case (input_state)
-//            RESET_IN  : begin
-//                            board <= EMPTY_BOARD;
-//                            empty <= 1;
-//                            count <= BRD_CNT;
-//                        end
-//            MOVE_READY: begin
-//                            board <= next_board;
-//                        end
-//            CYC_BOARDS: begin
-//                            if (count > 0) begin
-//                                count <= count - 1;
-//                            end else begin
-//                                count <= BRD_CNT;
-//                                if (empty) board <= CORNER_BOARD;
-//                                else board <= EMPTY_BOARD;
-//                            end
-              b0: board <= BOARD0;
-              b1: board <= BOARD1;
+            SELF_OUT    : begin
+                              board <= own_board;
+                          end
+            RX_OUT_WAIT : begin
+                              board <= board;
+                          end
+            RX_OUT      : begin
+                              board <= board_in;
+                          end
             default: board <= board;
         endcase
     end

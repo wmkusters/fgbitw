@@ -68,8 +68,11 @@ module top_level(
     game_fsm game(.clk_in(clk_65mhz),
                   .reset(reset),
                   .board_sel(sw[0]),
+                  .comm_sel(sw[1]),
+                  .rx_ready(rx_ready),
                   .move_avail(move_avail),
                   .move(move),
+                  .board_in(rx_bus),
                   .board(board));
     
     display display1(.clk(clk_65mhz),
@@ -89,11 +92,12 @@ module top_level(
                     .data_out(jb[0]));
 
     logic rx_ready;
+    logic [1:0] rx_bus [8:0][8:0];
     rx my_rx(.clk_in(clk_65mhz),
                     .rst_in(reset),
                     .rx(ja[1]),
-                    .data_out(rx_ready),
-                    .data_out(ja[0]));                      
+                    .ready(rx_ready),
+                    .data_out(rx_bus));                      
                         
 endmodule
 
