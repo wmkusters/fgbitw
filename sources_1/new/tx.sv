@@ -26,7 +26,7 @@ module tx (   input           clk_in,
               input [161:0]   val_in,
               output logic    data_out);
     
-    parameter   DIVISOR = 10416; //treat this like a constant!!
+    parameter   DIVISOR = 6771; //treat this like a constant!!
     parameter   DATA_LNGTH = 162;
     
     reg   [31:0]        count;
