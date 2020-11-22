@@ -39,14 +39,13 @@ module top_level(
     input clk_100mhz,
     input [15:0] sw,
     input btnc, btnu, btnl, btnr, btnd,
-    input logic [1:0] ja,
+    input logic [1:0] jb,
     output logic[3:0] vga_r,
     output logic[3:0] vga_b,
     output logic[3:0] vga_g,
     output logic vga_hs,
     output logic vga_vs,
-    output logic [15:0] led,
-    output logic [1:0] jb
+    output logic [1:0] ja
     );
     
     assign ja[1] = 0;
@@ -61,10 +60,19 @@ module top_level(
     logic tx_btn;
     debounce db2 (.reset_in(reset), .clock_in(clk_65mhz), .noisy_in(btnu), .clean_out(tx_btn));
     
+    logic rx_ready;
+    logic [161:0] rx_bus;
+    logic [161:0] tx_bus;
     logic move_avail;
     logic [7:0] move;
+    logic [1:0] rx_board [8:0][8:0];
     logic [1:0] board [8:0][8:0];
     
+    bus_arr_converter bac(.arr(board),
+                          .bus(rx_bus),
+                          .out_arr(rx_board),
+                          .out_bus(tx_bus));
+                          
     game_fsm game(.clk_in(clk_65mhz),
                   .reset(reset),
                   .board_sel(sw[0]),
@@ -72,7 +80,7 @@ module top_level(
                   .rx_ready(rx_ready),
                   .move_avail(move_avail),
                   .move(move),
-                  .board_in(rx_bus),
+                  .board_in(rx_board),
                   .board(board));
     
     display display1(.clk(clk_65mhz),
@@ -88,14 +96,12 @@ module top_level(
     tx my_tx(.clk_in(clk_65mhz),
                     .rst_in(reset),
                     .trigger_in(clean&~old_clean),
-                    .val_in(board_state),
-                    .data_out(jb[0]));
+                    .val_in(tx_bus),
+                    .data_out(ja[0]));
 
-    logic rx_ready;
-    logic [1:0] rx_bus [8:0][8:0];
     rx my_rx(.clk_in(clk_65mhz),
                     .rst_in(reset),
-                    .rx(ja[1]),
+                    .rx(jb[0]),
                     .ready(rx_ready),
                     .data_out(rx_bus));                      
                         

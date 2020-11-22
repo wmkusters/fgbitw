@@ -31,7 +31,6 @@ module game_fsm(
     parameter RX_OUT_WAIT = 8'b0000_0100;
     parameter RX_OUT = 8'b0000_1000;
     
-    parameter BRD_CNT = 5;
     parameter [1:0] b = 2'b01;
     parameter [1:0] w = 2'b10;
     parameter [1:0] e = 2'b00;
