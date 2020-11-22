@@ -51,7 +51,7 @@ module top_level(
     assign ja[1] = 0;
     
     // create 65mhz system clock, happens to match 1024 x 768 XVGA timing
-    clk_wiz clkdivider(.clk_in1(clk_100mhz), .clk_out1(clk_65zmhz));
+    clk_wiz clkdivider(.clk_in1(clk_100mhz), .clk_out1(clk_65mhz));
     
     // btnc button is user reset
     logic reset;
