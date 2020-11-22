@@ -30,21 +30,32 @@ module top_level(   input               clk_100mhz,
     
     logic               clean;
     logic               old_clean;
+    logic       [161:0] board_state;
+    logic       [161:0] rx_board_state;
+    logic               rx_ready;
+    
+    assign board_state = 162'h2_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA;
     assign led = sw;
-    assign ja[1] = 0; //just assign this to be 0
     
     always_ff @(posedge clk_100mhz)begin
         old_clean <= clean;  //for rising edge detection
     end
     
-    debounce my_deb(.clk_in(clk_100mhz), 
-                    .rst_in(btnd),
-                    .bouncey_in(btnc), 
-                    .clean_out(clean));
+    debouncer debounce(.clk_in(clk_100mhz), 
+                       .rst_in(btnd),
+                       .bouncey_in(btnc), 
+                       .clean_out(clean));
     
-    serial_tx my_tx(.clk_in(clk_100mhz), 
-                    .rst_in(btnd), 
+    tx my_tx(.clk_in(clk_100mhz), 
+                    .rst_in(btnd),
                     .trigger_in(clean&~old_clean),
-                    .val_in(sw[7:0]),
+                    .val_in(board_state),
                     .data_out(ja[0]));
+                    
+    rx my_rx(.clk_in(clk_100mhz), 
+                    .rst_in(btnd),
+                    .rx(ja[1]),
+                    .data_out(rx_ready),
+                    .data_out(ja[0]));
+                    
 endmodule//top_level
