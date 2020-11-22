@@ -27,7 +27,9 @@ module rx(
     output logic ready
     );
     
+    logic rx_samp;
     
-    
+    uar_sampler sample(.clk_in(clk_in), .rst_in(rst_in), .sig_in(rx), .sig_out(rx_samp));
+    uar_fsm rx_fsm(.clk_in(clk_in), .rst_in(rst_in), .sig_in(rx_samp), .data_out(data_out), .ready(ready));
     
 endmodule

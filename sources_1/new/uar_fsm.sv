@@ -61,6 +61,7 @@ module uar_fsm(
             state <= WAITING;
             count <= 0;
             bd_count <= 0;
+            data_out <= 162'h00_0000_0000_0000_0000_0000;
         end else if (state == WAITING) begin
             if (~sig_in) count <= 0;
             else count <= count + 1;
