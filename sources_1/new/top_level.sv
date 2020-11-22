@@ -95,7 +95,7 @@ module top_level(
                         
     tx my_tx(.clk_in(clk_65mhz),
                     .rst_in(reset),
-                    .trigger_in(clean&~old_clean),
+                    .trigger_in(tx_btn),
                     .val_in(tx_bus),
                     .data_out(ja[0]));
 
