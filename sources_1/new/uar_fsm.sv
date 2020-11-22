@@ -28,11 +28,11 @@ module uar_fsm(
     output logic ready
     );
     
-    parameter CLK_HZ = 6500000;
+    parameter CLK_HZ = 65_000_000;
     parameter SAMP_PER_BIT = 16;
     parameter BAUD_RATE = 9600;
     parameter WAIT_TIME = 20000000; //time in ns
-    parameter CLK_PER_SAMP = 423; //NOT FULLY PARAMETERIZED
+    parameter CLK_PER_SAMP = (CLK_HZ/BAUD_RATE*SAMP_PER_BIT); //NOT FULLY PARAMETERIZED
     parameter PKT_LNGTH = 162;
     parameter CLK_PER_PACKET = ((PKT_LNGTH-1)*SAMP_PER_BIT+SAMP_PER_BIT/2)*CLK_PER_SAMP;
     parameter WAITING_COUNT = WAIT_TIME*65/1000; //NOT FULLY PARAMETERIZED
