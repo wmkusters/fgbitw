@@ -56,19 +56,20 @@ module game_fsm(
     logic [1:0] next_board [8:0][8:0];
     logic [7:0] input_state;
     logic [3:0] count;
-    
+    logic empty;
     assign next_board = EMPTY_BOARD;
     
     always_comb begin
         if (reset) input_state = RESET_IN;
         else if (move_avail) input_state = MOVE_READY;
-        else input_state = CYC_BOARDS;
+        else input_state = CYC_BOARDS; 
     end
     
     always_ff @(posedge clk_in) begin
         case (input_state)
             RESET_IN  : begin
                             board <= EMPTY_BOARD;
+                            empty <= 1;
                             count <= BRD_CNT;
                         end
             MOVE_READY: begin
@@ -76,9 +77,14 @@ module game_fsm(
                         end
             CYC_BOARDS: begin
                             if (count > 0) begin
-                                
+                                count <= count - 1;
+                            end else begin
+                                count <= BRD_CNT;
+                                if (empty) board <= CORNER_BOARD;
+                                else board <= EMPTY_BOARD;
                             end
                         end
+            default: board <= board;
         endcase
     end
 endmodule
