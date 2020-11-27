@@ -38,7 +38,7 @@
 module top_level(
     input clk_100mhz,
     input [15:0] sw,
-    input btnc, btnu, btnl, btnr, btnd,
+    input btnc, btnu, //btnl, btnr, btnd,
     input logic [1:0] jb,
     output logic[3:0] vga_r,
     output logic[3:0] vga_b,
@@ -48,21 +48,30 @@ module top_level(
     output logic [1:0] ja
     );
     
+    //COMM PARAMS
+    parameter CLK_HZ = 65_000_000;
+    parameter BAUD_RATE = 9600;
+    parameter SAMP_PER_BIT = 16;
+    parameter PKT_LEN = 162;
+    parameter WAIT_TIME = 2_000_000; //time in ns
+
+    
     assign ja[1] = 0;
+    assign jb[1] = 0;
     
     // create 65mhz system clock, happens to match 1024 x 768 XVGA timing
     clk_wiz clkdivider(.clk_in1(clk_100mhz), .clk_out1(clk_65mhz));
     
     // btnc button is user reset
     logic reset;
-    debounce db1(.reset_in(reset),.clock_in(clk_65mhz),.noisy_in(btnc),.clean_out(reset));
+    debounce #(2) db1(.reset_in(btnc),.clock_in(clk_65mhz),.noisy_in(btnc),.clean_out(reset));
     
     logic tx_btn;
-    debounce db2 (.reset_in(reset), .clock_in(clk_65mhz), .noisy_in(btnu), .clean_out(tx_btn));
+    debounce #(2) db2 (.reset_in(reset), .clock_in(clk_65mhz), .noisy_in(btnu), .clean_out(tx_btn));
     
     logic rx_ready;
-    logic [161:0] rx_bus;
-    logic [161:0] tx_bus;
+    logic [PKT_LEN-1:0] rx_bus;
+    logic [PKT_LEN-1:0] tx_bus;
     logic move_avail;
     logic [7:0] move;
     logic [1:0] rx_board [8:0][8:0];
@@ -93,13 +102,23 @@ module top_level(
                      .vga_hs(vga_hs),
                      .vga_vs(vga_vs));
                         
-    tx my_tx(.clk_in(clk_65mhz),
+    tx #(.CLK_HZ(CLK_HZ),
+         .BAUD_RATE(BAUD_RATE),
+         .PKT_LEN(PKT_LEN))
+         
+              my_tx(.clk_in(clk_65mhz),
                     .rst_in(reset),
                     .trigger_in(tx_btn),
                     .val_in(tx_bus),
                     .data_out(ja[0]));
 
-    rx my_rx(.clk_in(clk_65mhz),
+    rx #(.CLK_HZ(CLK_HZ),
+          .BAUD_RATE(BAUD_RATE),
+          .SAMP_PER_BIT(SAMP_PER_BIT),
+          .PKT_LEN(PKT_LEN),
+          .WAIT_TIME(WAIT_TIME))
+          
+              my_rx(.clk_in(clk_65mhz),
                     .rst_in(reset),
                     .rx(jb[0]),
                     .ready(rx_ready),
@@ -115,6 +134,7 @@ endmodule
 
 module debounce (input reset_in, clock_in, noisy_in,
                  output logic clean_out);
+   parameter DB_COUNT = 1000000;
 
    logic [19:0] count;
    logic new_input;
@@ -125,7 +145,7 @@ module debounce (input reset_in, clock_in, noisy_in,
         clean_out <= noisy_in; 
         count <= 0; end
      else if (noisy_in != new_input) begin new_input<=noisy_in; count <= 0; end
-     else if (count == 1000000) clean_out <= new_input;
+     else if (count == DB_COUNT) clean_out <= new_input;
      else count <= count+1;
 
 
