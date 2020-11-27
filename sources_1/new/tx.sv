@@ -26,16 +26,18 @@ module tx (   input           clk_in,
               input [161:0]   val_in,
               output logic    data_out);
     
-    parameter   DIVISOR = 6771; //treat this like a constant!!
-    parameter   DATA_LNGTH = 162;
+    parameter   CLK_HZ = 100_000_000;
+    parameter   BAUD_RATE = 9600;
+    parameter   DIVISOR = CLK_HZ/BAUD_RATE; //treat this like a constant!!
+    parameter   PKT_LEN = 8;
     
     reg   [31:0]        count;
     reg   [7:0]         shift;
     
-    logic [163:0]       shift_buffer; 
+    logic [(PKT_LEN + 1):0]       shift_buffer; 
     logic               send_flag;
 
-    assign shift_buffer = {1'b1, val_in[161:0], 1'b0};
+    assign shift_buffer = {1'b1, val_in[(PKT_LEN-1):0], 1'b0};
     
     
     always_ff @(posedge clk_in) begin
@@ -63,7 +65,7 @@ module tx (   input           clk_in,
                 count <= DIVISOR-1;
             end
             
-            if (shift == DATA_LNGTH + 2) begin
+            if (shift == PKT_LEN + 2) begin
                 shift <= 0;
                 send_flag <= 0;
                 data_out <= 1'b1;

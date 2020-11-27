@@ -27,9 +27,9 @@ module uar_sampler(
     output logic sig_out
     );
     
-    parameter CLK_HZ = 65_000_000;
-    parameter SAMP_PER_BIT = 16;
+    parameter CLK_HZ = 100_000_000;
     parameter BAUD_RATE = 9600;
+    parameter SAMP_PER_BIT = 16;
     
     reg [15:0] count;
     

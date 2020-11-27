@@ -28,14 +28,13 @@ module uar_fsm(
     output logic ready
     );
     
-    parameter CLK_HZ = 65_000_000;
-    parameter SAMP_PER_BIT = 16;
+    parameter CLK_HZ = 100_000_000;
     parameter BAUD_RATE = 9600;
-    parameter WAIT_TIME = 20000000; //time in ns
-    parameter CLK_PER_SAMP = (CLK_HZ/BAUD_RATE*SAMP_PER_BIT); //NOT FULLY PARAMETERIZED
-    parameter PKT_LNGTH = 162;
-    parameter CLK_PER_PACKET = ((PKT_LNGTH-1)*SAMP_PER_BIT+SAMP_PER_BIT/2)*CLK_PER_SAMP;
-    parameter WAITING_COUNT = WAIT_TIME*65/1000; //NOT FULLY PARAMETERIZED
+    parameter SAMP_PER_BIT = 16;
+    parameter PKT_LEN = 8;
+    parameter WAIT_TIME = 2_000_000; //time in ns
+    parameter CLK_PER_SAMP = (CLK_HZ/BAUD_RATE/SAMP_PER_BIT);
+    parameter WAITING_COUNT = WAIT_TIME*(CLK_HZ/1_000_000_000);
     
     parameter WAITING = 3'b001;
     parameter ARMED = 3'b010;
@@ -62,7 +61,7 @@ module uar_fsm(
             state <= WAITING;
             count <= 0;
             bd_count <= 0;
-            data_out <= 162'h00_0000_0000_0000_0000_0000;
+            data_out <= 8'h00;
         end else if (state == WAITING) begin
             if (~sig_in) count <= 0;
             else count <= count + 1;
@@ -73,7 +72,7 @@ module uar_fsm(
             if (count == 16*CLK_PER_SAMP - 1) begin
                 count <= 0;
                 bd_count <= bd_count + 1;
-                data_out = {sig_in, data_out[161:1]};
+                data_out = {sig_in, data_out[(PKT_LEN-1):1]};
             end else count <= count + 1;
         end
         
@@ -84,7 +83,7 @@ module uar_fsm(
             ARMED:
                 state <= (uart_strt) ? READING : state;
             READING:
-                state <= (bd_count == PKT_LNGTH + 1) ? WAITING : state;
+                state <= (bd_count == PKT_LEN + 1) ? WAITING : state;
             default:
                 state <= WAITING;
         endcase
