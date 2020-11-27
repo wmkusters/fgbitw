@@ -21,7 +21,7 @@
 
 
 module game_fsm(
-                input logic clk_in, reset, move_avail, board_sel, rx_ready, comm_sel,
+                input logic clk_in, reset, move_avail, board_sel, rx_ready, comm_sel, emp_sel,
                 input logic [7:0] move,
                 input logic [1:0] board_in [8:0][8:0],
                 output logic [1:0] board [8:0][8:0]
@@ -52,6 +52,15 @@ module game_fsm(
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, w, w},
                                             '{e, e, e, e, e, e, e, w, w}};
+    logic [1:0] EMPTY [8:0][8:0] =       '{'{e, e, e, e, e, e, e, e, e},
+                                            '{e, e, e, e, e, e, e, e, e},
+                                            '{e, e, e, e, e, e, e, e, e},
+                                            '{e, e, e, e, e, e, e, e, e},
+                                            '{e, e, e, e, e, e, e, e, e},
+                                            '{e, e, e, e, e, e, e, e, e},
+                                            '{e, e, e, e, e, e, e, e, e},
+                                            '{e, e, e, e, e, e, e, e, e},
+                                            '{e, e, e, e, e, e, e, e, e}};                                       
     
                                               
     logic [1:0] own_board [8:0][8:0];

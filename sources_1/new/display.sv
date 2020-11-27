@@ -119,6 +119,7 @@ module go_game(
    
    parameter [1:0] b = 2'b01;
    parameter [1:0] w = 2'b10;
+   parameter [1:0] r = 2'b11;
    
    logic grid, hgrid, vgrid, inbounds, intersection, on_tile, tilebound;
    logic [31:0] hgrid_bounds [8:0][8:0];
@@ -174,8 +175,9 @@ module go_game(
                      (hcount_in < hgrid_bounds[i][j][15:0])  &
                      (vcount_in > vgrid_bounds[i][j][15:0])  &
                      (vcount_in < vgrid_bounds[i][j][31:16]));
-        on_tile = (board[i][j] == b | board[i][j] == w);
+        on_tile = (board[i][j] == b | board[i][j] == w | board[i][j] == r);
         if (board[i][j] == b) tilecolor = 12'b0;
+        else if (board[i][j] == r) tilecolor = 12'b1111_0000_0000;
         else  tilecolor = 12'b1111_1111_1111;
    end
    

@@ -57,7 +57,6 @@ module top_level(
 
     
     assign ja[1] = 0;
-    assign jb[1] = 0;
     
     // create 65mhz system clock, happens to match 1024 x 768 XVGA timing
     clk_wiz clkdivider(.clk_in1(clk_100mhz), .clk_out1(clk_65mhz));
@@ -86,6 +85,7 @@ module top_level(
                   .reset(reset),
                   .board_sel(sw[0]),
                   .comm_sel(sw[1]),
+                  .emp_sel(sw[2]),
                   .rx_ready(rx_ready),
                   .move_avail(move_avail),
                   .move(move),
