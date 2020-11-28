@@ -95,5 +95,3 @@ module uar_fsm(
     end
 
 endmodule
-endmodule
->>>>>>> d6fe3ec419be3c9d673f195796e0c921d111a114
