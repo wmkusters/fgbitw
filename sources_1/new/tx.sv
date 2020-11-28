@@ -29,7 +29,7 @@ module tx (   input           clk_in,
     parameter   CLK_HZ = 65_000_000;
     parameter   BAUD_RATE = 9600;
     parameter   DIVISOR = 6771; //CLK_HZ/BAUD_RATE
-    parameter   PKT_LEN = 162;
+    parameter   PKT_LEN = 208;
     
     reg   [31:0]        count;
     reg   [7:0]         shift;
