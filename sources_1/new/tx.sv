@@ -26,10 +26,10 @@ module tx (   input           clk_in,
               input [161:0]   val_in,
               output logic    data_out);
     
-    parameter   CLK_HZ = 100_000_000;
+    parameter   CLK_HZ = 65_000_000;
     parameter   BAUD_RATE = 9600;
-    parameter   DIVISOR = CLK_HZ/BAUD_RATE; //treat this like a constant!!
-    parameter   PKT_LEN = 8;
+    parameter   DIVISOR = 6771; //CLK_HZ/BAUD_RATE
+    parameter   PKT_LEN = 162;
     
     reg   [31:0]        count;
     reg   [7:0]         shift;
@@ -54,7 +54,7 @@ module tx (   input           clk_in,
                 count <= DIVISOR-1;
             end
             
-            if (send_flag) begin
+            if (send_flag && ~trigger_in) begin
                 data_out <= shift_buffer[shift];
                 if (count == 0) begin
                     shift <= shift + 1;

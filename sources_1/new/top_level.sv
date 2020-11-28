@@ -54,8 +54,10 @@ module top_level(
     parameter SAMP_PER_BIT = 16;
     parameter PKT_LEN = 162;
     parameter WAIT_TIME = 2_000_000; //time in ns
+    parameter CLK_PER_SAMP = 423; //CLK_HZ/BAUD_RATE/SAMP_PER_BIT
+    parameter DIVISOR = 6771; //CLK_HZ/BAUD_RATE
+    parameter WAITING_COUNT = 130_000; //WAIT_TIME*(CLK_HZ/1_000_000_000)
 
-    
     assign ja[1] = 0;
     
     // create 65mhz system clock, happens to match 1024 x 768 XVGA timing
@@ -63,10 +65,10 @@ module top_level(
     
     // btnc button is user reset
     logic reset;
-    debounce #(2) db1(.reset_in(btnc),.clock_in(clk_65mhz),.noisy_in(btnc),.clean_out(reset));
+    debounce db1(.reset_in(btnc),.clock_in(clk_65mhz),.noisy_in(btnc),.clean_out(reset));
     
     logic tx_btn;
-    debounce #(2) db2 (.reset_in(reset), .clock_in(clk_65mhz), .noisy_in(btnu), .clean_out(tx_btn));
+    debounce db2 (.reset_in(reset), .clock_in(clk_65mhz), .noisy_in(btnu), .clean_out(tx_btn));
     
     logic rx_ready;
     logic [PKT_LEN-1:0] rx_bus;
@@ -104,6 +106,7 @@ module top_level(
                         
     tx #(.CLK_HZ(CLK_HZ),
          .BAUD_RATE(BAUD_RATE),
+         .DIVISOR(DIVISOR),
          .PKT_LEN(PKT_LEN))
          
               my_tx(.clk_in(clk_65mhz),
@@ -116,7 +119,9 @@ module top_level(
           .BAUD_RATE(BAUD_RATE),
           .SAMP_PER_BIT(SAMP_PER_BIT),
           .PKT_LEN(PKT_LEN),
-          .WAIT_TIME(WAIT_TIME))
+          .WAIT_TIME(WAIT_TIME),
+          .CLK_PER_SAMP(CLK_PER_SAMP),
+          .WAITING_COUNT(WAITING_COUNT))
           
               my_rx(.clk_in(clk_65mhz),
                     .rst_in(reset),
