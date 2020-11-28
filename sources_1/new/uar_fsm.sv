@@ -28,13 +28,13 @@ module uar_fsm(
     output logic ready
     );
     
-    parameter CLK_HZ = 100_000_000;
+    parameter CLK_HZ = 65_000_000;
     parameter BAUD_RATE = 9600;
     parameter SAMP_PER_BIT = 16;
-    parameter PKT_LEN = 8;
+    parameter PKT_LEN = 162;
     parameter WAIT_TIME = 2_000_000; //time in ns
-    parameter CLK_PER_SAMP = (CLK_HZ/BAUD_RATE/SAMP_PER_BIT);
-    parameter WAITING_COUNT = WAIT_TIME*(CLK_HZ/1_000_000_000);
+    parameter CLK_PER_SAMP = 423; //CLK_HZ/BAUD_RATE/SAMP_PER_BIT
+    parameter WAITING_COUNT = 130_000; //WAIT_TIME*(CLK_HZ/1_000_000_000)
     
     parameter WAITING = 3'b001;
     parameter ARMED = 3'b010;
@@ -72,7 +72,7 @@ module uar_fsm(
             if (count == (SAMP_PER_BIT)*CLK_PER_SAMP - 1) begin
                 count <= 0;
                 bd_count <= bd_count + 1;
-                data_out = {sig_in, data_out[(PKT_LEN-1):1]};
+                data_out <= {sig_in, data_out[(PKT_LEN-1):1]};
             end else count <= count + 1;
         end
         
