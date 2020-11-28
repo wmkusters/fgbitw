@@ -24,7 +24,7 @@ module bus_arr_converter(
     input logic [1:0] arr [8:0][8:0],
     input logic [161:0] bus,
     output logic [1:0] out_arr [8:0][8:0],
-    output logic [161:0] out_bus
+    output logic [207:0] out_bus
     );
     always_comb begin
         out_arr = '{'{bus[161:160],bus[159:158],bus[157:156],bus[155:154],bus[153:152],bus[151:150],bus[149:148],bus[147:146],bus[145:144]},
@@ -36,14 +36,14 @@ module bus_arr_converter(
                         '{bus[53:52],bus[51:50],bus[49:48],bus[47:46],bus[45:44],bus[43:42],bus[41:40],bus[39:38],bus[37:36]},
                         '{bus[35:34],bus[33:32],bus[31:30],bus[29:28],bus[27:26],bus[25:24],bus[23:22],bus[21:20],bus[19:18]},
                         '{bus[17:16],bus[15:14],bus[13:12],bus[11:10],bus[9:8],bus[7:6],bus[5:4],bus[3:2],bus[1:0]}};
-        out_bus = {arr[8][8], arr[8][7], arr[8][6], arr[8][5], arr[8][4], arr[8][3], arr[8][2], arr[8][1], arr[8][0], 
-                    arr[7][8], arr[7][7], arr[7][6], arr[7][5], arr[7][4], arr[7][3], arr[7][2], arr[7][1], arr[7][0], 
-                    arr[6][8], arr[6][7], arr[6][6], arr[6][5], arr[6][4], arr[6][3], arr[6][2], arr[6][1], arr[6][0], 
-                    arr[5][8], arr[5][7], arr[5][6], arr[5][5], arr[5][4], arr[5][3], arr[5][2], arr[5][1], arr[5][0], 
-                    arr[4][8], arr[4][7], arr[4][6], arr[4][5], arr[4][4], arr[4][3], arr[4][2], arr[4][1], arr[4][0], 
-                    arr[3][8], arr[3][7], arr[3][6], arr[3][5], arr[3][4], arr[3][3], arr[3][2], arr[3][1], arr[3][0], 
-                    arr[2][8], arr[2][7], arr[2][6], arr[2][5], arr[2][4], arr[2][3], arr[2][2], arr[2][1], arr[2][0], 
-                    arr[1][8], arr[1][7], arr[1][6], arr[1][5], arr[1][4], arr[1][3], arr[1][2], arr[1][1], arr[1][0], 
-                    arr[0][8], arr[0][7], arr[0][6], arr[0][5], arr[0][4], arr[0][3], arr[0][2], arr[0][1], arr[0][0]};
-    end
+        out_bus = {6'b00_0000, arr[8][8], 2'b01, arr[8][7], arr[8][6], arr[8][5], arr[8][4], 2'b01, arr[8][3], arr[8][2], arr[8][1], arr[8][0], 
+                    2'b01, arr[7][8], arr[7][7], arr[7][6], arr[7][5], 2'b01, arr[7][4], arr[7][3], arr[7][2], arr[7][1], 2'b01, arr[7][0], 
+                    arr[6][8], arr[6][7], arr[6][6], 2'b01, arr[6][5], arr[6][4], arr[6][3], arr[6][2], 2'b01, arr[6][1], arr[6][0], 
+                    arr[5][8], arr[5][7], 2'b01, arr[5][6], arr[5][5], arr[5][4], arr[5][3], 2'b01, arr[5][2], arr[5][1], arr[5][0], 
+                    arr[4][8], 2'b01, arr[4][7], arr[4][6], arr[4][5], arr[4][4], 2'b01, arr[4][3], arr[4][2], arr[4][1], arr[4][0], 
+                    2'b01, arr[3][8], arr[3][7], arr[3][6], arr[3][5], 2'b01, arr[3][4], arr[3][3], arr[3][2], arr[3][1], 2'b01, arr[3][0], 
+                    arr[2][8], arr[2][7], arr[2][6], 2'b01, arr[2][5], arr[2][4], arr[2][3], arr[2][2], 2'b01, arr[2][1], arr[2][0], 
+                    arr[1][8], arr[1][7], 2'b01, arr[1][6], arr[1][5], arr[1][4], arr[1][3], 2'b01, arr[1][2], arr[1][1], arr[1][0], 
+                    arr[0][8], 2'b01, arr[0][7], arr[0][6], arr[0][5], arr[0][4], 2'b01, arr[0][3], arr[0][2], arr[0][1], arr[0][0]};
+        end
 endmodule

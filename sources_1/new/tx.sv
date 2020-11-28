@@ -23,7 +23,7 @@
 module tx (   input           clk_in,
               input           rst_in,
               input           trigger_in,
-              input [161:0]   val_in,
+              input [207:0]   val_in,
               output logic    data_out);
     
     parameter   CLK_HZ = 65_000_000;
