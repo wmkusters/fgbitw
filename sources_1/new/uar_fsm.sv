@@ -66,7 +66,7 @@ module uar_fsm(
             state <= WAITING;
             count <= 0;
             bd_count <= 0;
-            data_out <= 162'h00;
+            data_bus <= 208'h00;
         end else if (state == WAITING) begin
             if (~sig_in) count <= 0;
             else count <= count + 1;
@@ -77,7 +77,7 @@ module uar_fsm(
             if (count == (SAMP_PER_BIT)*CLK_PER_SAMP - 1) begin
                 count <= 0;
                 bd_count <= bd_count + 1;
-                data_out <= {sig_in, data_out[(PKT_LEN-1):1]};
+                data_bus <= {sig_in, data_bus[(PKT_LEN-1):1]};
             end else count <= count + 1;
         end
         
