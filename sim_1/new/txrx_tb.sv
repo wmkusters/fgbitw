@@ -50,7 +50,7 @@ module txrx_tb;
         clk = 0;
         rst = 0;
         trig = 0;
-        val_in = 208'hAAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA;
+        val_in = 208'h03AA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AA83;
         #10000;
         rst = 1;
         #10;
