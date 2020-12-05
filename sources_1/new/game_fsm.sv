@@ -55,7 +55,17 @@ module game_fsm(
                                               
     logic [1:0] own_board [8:0][8:0];
     logic [7:0] input_state;
-    
+    logic prune55, prune54, prune56, prune65, prune45;
+    prune_tile tile55(.self(own_board[5][5]),
+                      .up(own_board[4][5]),
+                      .up_prune(prune45),
+                      .down(own_board[6][5]),
+                      .down_prune(prune65),
+                      .left(own_board[5][4]),
+                      .left_prune(prune54),
+                      .right(own_board[5][6]),
+                      .right_prune(prune56))
+
     always_comb begin
 //        if (reset) input_state = RESET_IN;
 //        else if (move_avail) input_state = MOVE_READY;
@@ -90,7 +100,8 @@ module prune_tile(
                   output prune
        );
   always_comb begin 
-    if ((up   == e) ||
+    if ((self == e) ||
+        (up   == e) ||
         (down == e) ||
         (left == e) ||
         (right == e)) begin
@@ -104,5 +115,5 @@ module prune_tile(
       prune = 0;
     end 
   end
-
+endmodule
   
