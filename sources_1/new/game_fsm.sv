@@ -83,3 +83,26 @@ module game_fsm(
         endcase
     end
 endmodule
+
+module prune_tile(
+                  input [1:0] self, up, down, left, right,
+                  input up_prune, left_prune, right_prune, down_prune,
+                  output prune
+       );
+  always_comb begin 
+    if ((up   == e) ||
+        (down == e) ||
+        (left == e) ||
+        (right == e)) begin
+      prune = 0;
+    end else if (((up == self) & (up_prune)) ||
+                 ((down == self) & (down_prune)) ||
+                 ((left == self) & (left_prune)) ||
+                 ((right == self) & (right_prune))) begin
+      prune = (up_prune || down_prune || left_prune || right_prune); 
+    end else begin
+      prune = 0;
+    end 
+  end
+
+  
