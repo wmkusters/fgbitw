@@ -364,12 +364,13 @@ module pruner(input logic clk_in, start_flag, reset_in,
     logic [6:0] prop_count;
     logic [3:0] state, next_state;
     always_comb begin
-        case (state) begin
+        case (state)
             WAITING: next_state = (start_flag ? PULSE : state);
             PULSE: next_state = PROPAGATING;
             PROPAGATING: next_state = (prop_count == 0) ? PRUNED : state;
             PRUNED: next_state = WAITING;
         endcase
+    end
 
     always_ff @(posedge clk_in) begin
         if (reset_in) begin
