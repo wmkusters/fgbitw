@@ -68,10 +68,16 @@ module top_level(
     
     // btnc button is user reset
     logic reset;
-    debounce db1(.reset_in(btnc),.clock_in(clk_65mhz),.noisy_in(btnc),.clean_out(reset));
+    debounce db1(.reset_in(btnc),
+                 .clock_in(clk_65mhz),
+                 .noisy_in(btnc),
+                 .clean_out(reset));
     
     logic tx_btn;
-    debounce db2 (.reset_in(reset), .clock_in(clk_65mhz), .noisy_in(btnu), .clean_out(tx_btn));
+    debounce db2 (.reset_in(reset),
+                  .clock_in(clk_65mhz),
+                  .noisy_in(btnu),
+                  .clean_out(tx_btn));
     
     logic rx_ready;
     // logic [161:0] rx_bus;
@@ -97,12 +103,12 @@ module top_level(
     //               .board_in(rx_board),
     //               .board(board));
 
-    logic [1:0] test_board [8:0][8:0] =   '{'{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, w, w, w, w, w, e},
-                                            '{e, e, w, b, b, b, b, b, w},
-                                            '{e, e, w, e, b, w, w, w, w},
+    logic [1:0] test_board [8:0][8:0] =   '{'{e, e, e, e, e, e, b, w, e},
+                                            '{e, e, e, e, e, b, w, e, w},
+                                            '{e, e, e, e, e, e, b, w, e},
+                                            '{e, e, e, w, b, e, e, e, e},
+                                            '{e, e, w, b, e, b, e, e, w},
+                                            '{e, e, e, w, b, w, e, e, w},
                                             '{e, e, e, w, w, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e}};
