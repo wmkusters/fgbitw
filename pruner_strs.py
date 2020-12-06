@@ -28,5 +28,7 @@ if __name__ == "__main__":
 	# 		print("logic wire_" + str(i) + str(j) + "_" + str(i) + str(j+1) + "mem" + ";")
 	for i in range(9):
 		for j in range(9):
-			print("wire_" + str(i) + str(j) + "_" + str(i+1) + str(j) + "mem <= wire_" + str(i) + str(j) + "_" + str(i+1) + str(j) + ";")
-			print("wire_" + str(i) + str(j) + "_" + str(i) + str(j+1) + "mem <= wire_" + str(i) + str(j) + "_" + str(i) + str(j+1) + ";")
+			# print("wire_" + str(i) + str(j) + "_" + str(i+1) + str(j) + "mem <= wire_" + str(i) + str(j) + "_" + str(i+1) + str(j) + ";")
+			# print("wire_" + str(i) + str(j) + "_" + str(i) + str(j+1) + "mem <= wire_" + str(i) + str(j) + "_" + str(i) + str(j+1) + ";")
+			print("wire_" + str(i) + str(j) + "_" + str(i+1) + str(j) + "mem <= 0;")
+			print("wire_" + str(i) + str(j) + "_" + str(i) + str(j+1) + "mem <= 0;")
