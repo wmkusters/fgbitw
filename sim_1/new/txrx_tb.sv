@@ -24,7 +24,7 @@ module txrx_tb;
     logic clk;
     logic rst;
     logic trig;
-    logic [161:0] val_in;
+    logic [207:0] val_in;
     logic data_out;
     logic [161:0] data;
     logic ready;
@@ -50,7 +50,7 @@ module txrx_tb;
         clk = 0;
         rst = 0;
         trig = 0;
-        val_in = 162'h2_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA;
+        val_in = 208'h03AA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AAAA_AA83;
         #10000;
         rst = 1;
         #10;
@@ -60,6 +60,6 @@ module txrx_tb;
         trig = 1;
         #10000000;
         trig = 0;
-        #20000000;
+        #30000000;
      end
 endmodule

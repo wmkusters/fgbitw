@@ -29,7 +29,7 @@ module rx(
     parameter CLK_HZ = 65_000_000;
     parameter BAUD_RATE = 9600;
     parameter SAMP_PER_BIT = 16;
-    parameter PKT_LEN = 162;
+    parameter PKT_LEN = 208;
     parameter WAIT_TIME = 2_000_000; //time in ns
     parameter CLK_PER_SAMP = 423; //CLK_HZ/BAUD_RATE/SAMP_PER_BIT
     parameter WAITING_COUNT = 130_000; //WAIT_TIME*(CLK_HZ/1_000_000_000)

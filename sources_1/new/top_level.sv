@@ -52,7 +52,7 @@ module top_level(
     parameter CLK_HZ = 65_000_000;
     parameter BAUD_RATE = 9600;
     parameter SAMP_PER_BIT = 16;
-    parameter PKT_LEN = 162;
+    parameter PKT_LEN = 208;
     parameter WAIT_TIME = 2_000_000; //time in ns
     parameter CLK_PER_SAMP = 423; //CLK_HZ/BAUD_RATE/SAMP_PER_BIT
     parameter DIVISOR = 6771; //CLK_HZ/BAUD_RATE
@@ -71,7 +71,7 @@ module top_level(
     debounce db2 (.reset_in(reset), .clock_in(clk_65mhz), .noisy_in(btnu), .clean_out(tx_btn));
     
     logic rx_ready;
-    logic [PKT_LEN-1:0] rx_bus;
+    logic [161:0] rx_bus;
     logic [PKT_LEN-1:0] tx_bus;
     logic move_avail;
     logic [7:0] move;

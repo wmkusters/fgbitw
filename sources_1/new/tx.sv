@@ -23,13 +23,13 @@
 module tx (   input           clk_in,
               input           rst_in,
               input           trigger_in,
-              input [161:0]   val_in,
+              input [207:0]   val_in,
               output logic    data_out);
     
     parameter   CLK_HZ = 65_000_000;
     parameter   BAUD_RATE = 9600;
     parameter   DIVISOR = 6771; //CLK_HZ/BAUD_RATE
-    parameter   PKT_LEN = 162;
+    parameter   PKT_LEN = 208;
     
     reg   [31:0]        count;
     reg   [7:0]         shift;
