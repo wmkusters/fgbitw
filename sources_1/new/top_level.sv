@@ -100,21 +100,21 @@ module top_level(
     logic [1:0] test_board [8:0][8:0] =   '{'{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, e, e, e, w, e, e},
-                                            '{e, e, e, e, e, w, b, e, e},
-                                            '{e, e, e, e, e, e, w, e, e},
+                                            '{e, e, e, e, w, w, w, w, e},
+                                            '{e, e, e, w, b, e, b, b, w},
+                                            '{e, e, e, e, w, w, w, w, w},
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e}};
 
     logic [1:0] next_board [8:0][8:0];                                            
-    assign move = 8'b0100_0001; 
+    assign move = sw[7:0]; 
     logic board_ready;
     board_updater updater(.clk_in(clk_65mhz),
                           .rst_in(reset),
                           .start_flag(tx_btn),
                           .board_bus(test_board),
-                          .turn(1'b1),
+                          .turn(sw[8]),
                           .move_in(move),
                           .next_board(next_board),
                           .board_ready(board_ready)); 

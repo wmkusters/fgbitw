@@ -68,7 +68,7 @@ def vert_wire(i,j):
     if i == 7:
         n5 = cold
     else:
-        n5 = "wire_" + str(i) + str(j) + "_" + str(i+1) + str(j)
+        n5 = "wire_" + str(i+1) + str(j) + "_" + str(i+2) + str(j)
 
     neighbors = [n1, n2, n3, n4, n5, n6]
     nlines = []

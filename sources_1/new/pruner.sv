@@ -201,7 +201,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(cold),
                          .neighbor3(wire_00_01),
                          .neighbor4(cold),
-                         .neighbor5(wire_00_10),
+                         .neighbor5(wire_10_20),
                          .neighbor6(wire_10_11),
                          .wire_out(wire_00_10)
     );
@@ -211,7 +211,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(cold),
                          .neighbor3(wire_01_02),
                          .neighbor4(wire_10_11),
-                         .neighbor5(wire_01_11),
+                         .neighbor5(wire_11_21),
                          .neighbor6(wire_11_12),
                          .wire_out(wire_01_11)
     );
@@ -221,7 +221,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(cold),
                          .neighbor3(wire_02_03),
                          .neighbor4(wire_11_12),
-                         .neighbor5(wire_02_12),
+                         .neighbor5(wire_12_22),
                          .neighbor6(wire_12_13),
                          .wire_out(wire_02_12)
     );
@@ -231,7 +231,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(cold),
                          .neighbor3(wire_03_04),
                          .neighbor4(wire_12_13),
-                         .neighbor5(wire_03_13),
+                         .neighbor5(wire_13_23),
                          .neighbor6(wire_13_14),
                          .wire_out(wire_03_13)
     );
@@ -241,7 +241,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(cold),
                          .neighbor3(wire_04_05),
                          .neighbor4(wire_13_14),
-                         .neighbor5(wire_04_14),
+                         .neighbor5(wire_14_24),
                          .neighbor6(wire_14_15),
                          .wire_out(wire_04_14)
     );
@@ -251,7 +251,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(cold),
                          .neighbor3(wire_05_06),
                          .neighbor4(wire_14_15),
-                         .neighbor5(wire_05_15),
+                         .neighbor5(wire_15_25),
                          .neighbor6(wire_15_16),
                          .wire_out(wire_05_15)
     );
@@ -261,7 +261,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(cold),
                          .neighbor3(wire_06_07),
                          .neighbor4(wire_15_16),
-                         .neighbor5(wire_06_16),
+                         .neighbor5(wire_16_26),
                          .neighbor6(wire_16_17),
                          .wire_out(wire_06_16)
     );
@@ -271,7 +271,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(cold),
                          .neighbor3(wire_07_08),
                          .neighbor4(wire_16_17),
-                         .neighbor5(wire_07_17),
+                         .neighbor5(wire_17_27),
                          .neighbor6(wire_17_18),
                          .wire_out(wire_07_17)
     );
@@ -281,7 +281,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(cold),
                          .neighbor3(cold),
                          .neighbor4(wire_17_18),
-                         .neighbor5(wire_08_18),
+                         .neighbor5(wire_18_28),
                          .neighbor6(cold),
                          .wire_out(wire_08_18)
     );
@@ -291,7 +291,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_00_10),
                          .neighbor3(wire_10_11),
                          .neighbor4(cold),
-                         .neighbor5(wire_10_20),
+                         .neighbor5(wire_20_30),
                          .neighbor6(wire_20_21),
                          .wire_out(wire_10_20)
     );
@@ -301,7 +301,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_01_11),
                          .neighbor3(wire_11_12),
                          .neighbor4(wire_20_21),
-                         .neighbor5(wire_11_21),
+                         .neighbor5(wire_21_31),
                          .neighbor6(wire_21_22),
                          .wire_out(wire_11_21)
     );
@@ -311,7 +311,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_02_12),
                          .neighbor3(wire_12_13),
                          .neighbor4(wire_21_22),
-                         .neighbor5(wire_12_22),
+                         .neighbor5(wire_22_32),
                          .neighbor6(wire_22_23),
                          .wire_out(wire_12_22)
     );
@@ -321,7 +321,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_03_13),
                          .neighbor3(wire_13_14),
                          .neighbor4(wire_22_23),
-                         .neighbor5(wire_13_23),
+                         .neighbor5(wire_23_33),
                          .neighbor6(wire_23_24),
                          .wire_out(wire_13_23)
     );
@@ -331,7 +331,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_04_14),
                          .neighbor3(wire_14_15),
                          .neighbor4(wire_23_24),
-                         .neighbor5(wire_14_24),
+                         .neighbor5(wire_24_34),
                          .neighbor6(wire_24_25),
                          .wire_out(wire_14_24)
     );
@@ -341,7 +341,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_05_15),
                          .neighbor3(wire_15_16),
                          .neighbor4(wire_24_25),
-                         .neighbor5(wire_15_25),
+                         .neighbor5(wire_25_35),
                          .neighbor6(wire_25_26),
                          .wire_out(wire_15_25)
     );
@@ -351,7 +351,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_06_16),
                          .neighbor3(wire_16_17),
                          .neighbor4(wire_25_26),
-                         .neighbor5(wire_16_26),
+                         .neighbor5(wire_26_36),
                          .neighbor6(wire_26_27),
                          .wire_out(wire_16_26)
     );
@@ -361,7 +361,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_07_17),
                          .neighbor3(wire_17_18),
                          .neighbor4(wire_26_27),
-                         .neighbor5(wire_17_27),
+                         .neighbor5(wire_27_37),
                          .neighbor6(wire_27_28),
                          .wire_out(wire_17_27)
     );
@@ -371,7 +371,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_08_18),
                          .neighbor3(cold),
                          .neighbor4(wire_27_28),
-                         .neighbor5(wire_18_28),
+                         .neighbor5(wire_28_38),
                          .neighbor6(cold),
                          .wire_out(wire_18_28)
     );
@@ -381,7 +381,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_10_20),
                          .neighbor3(wire_20_21),
                          .neighbor4(cold),
-                         .neighbor5(wire_20_30),
+                         .neighbor5(wire_30_40),
                          .neighbor6(wire_30_31),
                          .wire_out(wire_20_30)
     );
@@ -391,7 +391,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_11_21),
                          .neighbor3(wire_21_22),
                          .neighbor4(wire_30_31),
-                         .neighbor5(wire_21_31),
+                         .neighbor5(wire_31_41),
                          .neighbor6(wire_31_32),
                          .wire_out(wire_21_31)
     );
@@ -401,7 +401,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_12_22),
                          .neighbor3(wire_22_23),
                          .neighbor4(wire_31_32),
-                         .neighbor5(wire_22_32),
+                         .neighbor5(wire_32_42),
                          .neighbor6(wire_32_33),
                          .wire_out(wire_22_32)
     );
@@ -411,7 +411,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_13_23),
                          .neighbor3(wire_23_24),
                          .neighbor4(wire_32_33),
-                         .neighbor5(wire_23_33),
+                         .neighbor5(wire_33_43),
                          .neighbor6(wire_33_34),
                          .wire_out(wire_23_33)
     );
@@ -421,7 +421,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_14_24),
                          .neighbor3(wire_24_25),
                          .neighbor4(wire_33_34),
-                         .neighbor5(wire_24_34),
+                         .neighbor5(wire_34_44),
                          .neighbor6(wire_34_35),
                          .wire_out(wire_24_34)
     );
@@ -431,7 +431,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_15_25),
                          .neighbor3(wire_25_26),
                          .neighbor4(wire_34_35),
-                         .neighbor5(wire_25_35),
+                         .neighbor5(wire_35_45),
                          .neighbor6(wire_35_36),
                          .wire_out(wire_25_35)
     );
@@ -441,7 +441,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_16_26),
                          .neighbor3(wire_26_27),
                          .neighbor4(wire_35_36),
-                         .neighbor5(wire_26_36),
+                         .neighbor5(wire_36_46),
                          .neighbor6(wire_36_37),
                          .wire_out(wire_26_36)
     );
@@ -451,7 +451,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_17_27),
                          .neighbor3(wire_27_28),
                          .neighbor4(wire_36_37),
-                         .neighbor5(wire_27_37),
+                         .neighbor5(wire_37_47),
                          .neighbor6(wire_37_38),
                          .wire_out(wire_27_37)
     );
@@ -461,7 +461,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_18_28),
                          .neighbor3(cold),
                          .neighbor4(wire_37_38),
-                         .neighbor5(wire_28_38),
+                         .neighbor5(wire_38_48),
                          .neighbor6(cold),
                          .wire_out(wire_28_38)
     );
@@ -471,7 +471,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_20_30),
                          .neighbor3(wire_30_31),
                          .neighbor4(cold),
-                         .neighbor5(wire_30_40),
+                         .neighbor5(wire_40_50),
                          .neighbor6(wire_40_41),
                          .wire_out(wire_30_40)
     );
@@ -481,7 +481,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_21_31),
                          .neighbor3(wire_31_32),
                          .neighbor4(wire_40_41),
-                         .neighbor5(wire_31_41),
+                         .neighbor5(wire_41_51),
                          .neighbor6(wire_41_42),
                          .wire_out(wire_31_41)
     );
@@ -491,7 +491,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_22_32),
                          .neighbor3(wire_32_33),
                          .neighbor4(wire_41_42),
-                         .neighbor5(wire_32_42),
+                         .neighbor5(wire_42_52),
                          .neighbor6(wire_42_43),
                          .wire_out(wire_32_42)
     );
@@ -501,7 +501,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_23_33),
                          .neighbor3(wire_33_34),
                          .neighbor4(wire_42_43),
-                         .neighbor5(wire_33_43),
+                         .neighbor5(wire_43_53),
                          .neighbor6(wire_43_44),
                          .wire_out(wire_33_43)
     );
@@ -511,7 +511,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_24_34),
                          .neighbor3(wire_34_35),
                          .neighbor4(wire_43_44),
-                         .neighbor5(wire_34_44),
+                         .neighbor5(wire_44_54),
                          .neighbor6(wire_44_45),
                          .wire_out(wire_34_44)
     );
@@ -521,7 +521,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_25_35),
                          .neighbor3(wire_35_36),
                          .neighbor4(wire_44_45),
-                         .neighbor5(wire_35_45),
+                         .neighbor5(wire_45_55),
                          .neighbor6(wire_45_46),
                          .wire_out(wire_35_45)
     );
@@ -531,7 +531,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_26_36),
                          .neighbor3(wire_36_37),
                          .neighbor4(wire_45_46),
-                         .neighbor5(wire_36_46),
+                         .neighbor5(wire_46_56),
                          .neighbor6(wire_46_47),
                          .wire_out(wire_36_46)
     );
@@ -541,7 +541,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_27_37),
                          .neighbor3(wire_37_38),
                          .neighbor4(wire_46_47),
-                         .neighbor5(wire_37_47),
+                         .neighbor5(wire_47_57),
                          .neighbor6(wire_47_48),
                          .wire_out(wire_37_47)
     );
@@ -551,7 +551,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_28_38),
                          .neighbor3(cold),
                          .neighbor4(wire_47_48),
-                         .neighbor5(wire_38_48),
+                         .neighbor5(wire_48_58),
                          .neighbor6(cold),
                          .wire_out(wire_38_48)
     );
@@ -561,7 +561,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_30_40),
                          .neighbor3(wire_40_41),
                          .neighbor4(cold),
-                         .neighbor5(wire_40_50),
+                         .neighbor5(wire_50_60),
                          .neighbor6(wire_50_51),
                          .wire_out(wire_40_50)
     );
@@ -571,7 +571,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_31_41),
                          .neighbor3(wire_41_42),
                          .neighbor4(wire_50_51),
-                         .neighbor5(wire_41_51),
+                         .neighbor5(wire_51_61),
                          .neighbor6(wire_51_52),
                          .wire_out(wire_41_51)
     );
@@ -581,7 +581,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_32_42),
                          .neighbor3(wire_42_43),
                          .neighbor4(wire_51_52),
-                         .neighbor5(wire_42_52),
+                         .neighbor5(wire_52_62),
                          .neighbor6(wire_52_53),
                          .wire_out(wire_42_52)
     );
@@ -591,7 +591,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_33_43),
                          .neighbor3(wire_43_44),
                          .neighbor4(wire_52_53),
-                         .neighbor5(wire_43_53),
+                         .neighbor5(wire_53_63),
                          .neighbor6(wire_53_54),
                          .wire_out(wire_43_53)
     );
@@ -601,7 +601,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_34_44),
                          .neighbor3(wire_44_45),
                          .neighbor4(wire_53_54),
-                         .neighbor5(wire_44_54),
+                         .neighbor5(wire_54_64),
                          .neighbor6(wire_54_55),
                          .wire_out(wire_44_54)
     );
@@ -611,7 +611,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_35_45),
                          .neighbor3(wire_45_46),
                          .neighbor4(wire_54_55),
-                         .neighbor5(wire_45_55),
+                         .neighbor5(wire_55_65),
                          .neighbor6(wire_55_56),
                          .wire_out(wire_45_55)
     );
@@ -621,7 +621,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_36_46),
                          .neighbor3(wire_46_47),
                          .neighbor4(wire_55_56),
-                         .neighbor5(wire_46_56),
+                         .neighbor5(wire_56_66),
                          .neighbor6(wire_56_57),
                          .wire_out(wire_46_56)
     );
@@ -631,7 +631,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_37_47),
                          .neighbor3(wire_47_48),
                          .neighbor4(wire_56_57),
-                         .neighbor5(wire_47_57),
+                         .neighbor5(wire_57_67),
                          .neighbor6(wire_57_58),
                          .wire_out(wire_47_57)
     );
@@ -641,7 +641,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_38_48),
                          .neighbor3(cold),
                          .neighbor4(wire_57_58),
-                         .neighbor5(wire_48_58),
+                         .neighbor5(wire_58_68),
                          .neighbor6(cold),
                          .wire_out(wire_48_58)
     );
@@ -651,7 +651,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_40_50),
                          .neighbor3(wire_50_51),
                          .neighbor4(cold),
-                         .neighbor5(wire_50_60),
+                         .neighbor5(wire_60_70),
                          .neighbor6(wire_60_61),
                          .wire_out(wire_50_60)
     );
@@ -661,7 +661,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_41_51),
                          .neighbor3(wire_51_52),
                          .neighbor4(wire_60_61),
-                         .neighbor5(wire_51_61),
+                         .neighbor5(wire_61_71),
                          .neighbor6(wire_61_62),
                          .wire_out(wire_51_61)
     );
@@ -671,7 +671,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_42_52),
                          .neighbor3(wire_52_53),
                          .neighbor4(wire_61_62),
-                         .neighbor5(wire_52_62),
+                         .neighbor5(wire_62_72),
                          .neighbor6(wire_62_63),
                          .wire_out(wire_52_62)
     );
@@ -681,7 +681,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_43_53),
                          .neighbor3(wire_53_54),
                          .neighbor4(wire_62_63),
-                         .neighbor5(wire_53_63),
+                         .neighbor5(wire_63_73),
                          .neighbor6(wire_63_64),
                          .wire_out(wire_53_63)
     );
@@ -691,7 +691,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_44_54),
                          .neighbor3(wire_54_55),
                          .neighbor4(wire_63_64),
-                         .neighbor5(wire_54_64),
+                         .neighbor5(wire_64_74),
                          .neighbor6(wire_64_65),
                          .wire_out(wire_54_64)
     );
@@ -701,7 +701,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_45_55),
                          .neighbor3(wire_55_56),
                          .neighbor4(wire_64_65),
-                         .neighbor5(wire_55_65),
+                         .neighbor5(wire_65_75),
                          .neighbor6(wire_65_66),
                          .wire_out(wire_55_65)
     );
@@ -711,7 +711,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_46_56),
                          .neighbor3(wire_56_57),
                          .neighbor4(wire_65_66),
-                         .neighbor5(wire_56_66),
+                         .neighbor5(wire_66_76),
                          .neighbor6(wire_66_67),
                          .wire_out(wire_56_66)
     );
@@ -721,7 +721,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_47_57),
                          .neighbor3(wire_57_58),
                          .neighbor4(wire_66_67),
-                         .neighbor5(wire_57_67),
+                         .neighbor5(wire_67_77),
                          .neighbor6(wire_67_68),
                          .wire_out(wire_57_67)
     );
@@ -731,7 +731,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_48_58),
                          .neighbor3(cold),
                          .neighbor4(wire_67_68),
-                         .neighbor5(wire_58_68),
+                         .neighbor5(wire_68_78),
                          .neighbor6(cold),
                          .wire_out(wire_58_68)
     );
@@ -741,7 +741,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_50_60),
                          .neighbor3(wire_60_61),
                          .neighbor4(cold),
-                         .neighbor5(wire_60_70),
+                         .neighbor5(wire_70_80),
                          .neighbor6(wire_70_71),
                          .wire_out(wire_60_70)
     );
@@ -751,7 +751,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_51_61),
                          .neighbor3(wire_61_62),
                          .neighbor4(wire_70_71),
-                         .neighbor5(wire_61_71),
+                         .neighbor5(wire_71_81),
                          .neighbor6(wire_71_72),
                          .wire_out(wire_61_71)
     );
@@ -761,7 +761,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_52_62),
                          .neighbor3(wire_62_63),
                          .neighbor4(wire_71_72),
-                         .neighbor5(wire_62_72),
+                         .neighbor5(wire_72_82),
                          .neighbor6(wire_72_73),
                          .wire_out(wire_62_72)
     );
@@ -771,7 +771,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_53_63),
                          .neighbor3(wire_63_64),
                          .neighbor4(wire_72_73),
-                         .neighbor5(wire_63_73),
+                         .neighbor5(wire_73_83),
                          .neighbor6(wire_73_74),
                          .wire_out(wire_63_73)
     );
@@ -781,7 +781,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_54_64),
                          .neighbor3(wire_64_65),
                          .neighbor4(wire_73_74),
-                         .neighbor5(wire_64_74),
+                         .neighbor5(wire_74_84),
                          .neighbor6(wire_74_75),
                          .wire_out(wire_64_74)
     );
@@ -791,7 +791,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_55_65),
                          .neighbor3(wire_65_66),
                          .neighbor4(wire_74_75),
-                         .neighbor5(wire_65_75),
+                         .neighbor5(wire_75_85),
                          .neighbor6(wire_75_76),
                          .wire_out(wire_65_75)
     );
@@ -801,7 +801,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_56_66),
                          .neighbor3(wire_66_67),
                          .neighbor4(wire_75_76),
-                         .neighbor5(wire_66_76),
+                         .neighbor5(wire_76_86),
                          .neighbor6(wire_76_77),
                          .wire_out(wire_66_76)
     );
@@ -811,7 +811,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_57_67),
                          .neighbor3(wire_67_68),
                          .neighbor4(wire_76_77),
-                         .neighbor5(wire_67_77),
+                         .neighbor5(wire_77_87),
                          .neighbor6(wire_77_78),
                          .wire_out(wire_67_77)
     );
@@ -821,7 +821,7 @@ module pruner(input logic [1:0] prune_color,
                          .neighbor2(wire_58_68),
                          .neighbor3(cold),
                          .neighbor4(wire_77_78),
-                         .neighbor5(wire_68_78),
+                         .neighbor5(wire_78_88),
                          .neighbor6(cold),
                          .wire_out(wire_68_78)
     );
