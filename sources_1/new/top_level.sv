@@ -102,8 +102,8 @@ module top_level(
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, w, w, w, w, w, e},
                                             '{e, e, w, b, b, b, b, b, w},
-                                            '{e, e, e, e, w, w, w, w, w},
-                                            '{e, e, e, e, e, e, e, e, e},
+                                            '{e, e, w, e, b, w, w, w, w},
+                                            '{e, e, e, w, w, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e}};
 

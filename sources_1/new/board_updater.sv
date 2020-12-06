@@ -94,14 +94,14 @@ module board_updater(
             PRUNE_1:
             begin
                 state <= (pruned) ? PULSE_PRUNE_2 : state;
-                prune_pulse <= 0; 
-                prune_color <= {~turn, turn};
+                prune_pulse <= 0;       
             end
             PULSE_PRUNE_2:
             begin
                 state <= PRUNE_2;
                 next_board <= pruned_board;
                 prune_pulse <= 1;
+                prune_color <= {~turn, turn};
             end
             PRUNE_2:
             begin
