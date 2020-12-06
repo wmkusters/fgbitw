@@ -51,7 +51,7 @@ module board_updater(
     logic [5:0] state;
     logic [1:0] prune_color;
     
-    pruner aashnas_pruner(.prune_color(prune_color), .board_in(next_board), .pruned_board(pruned_board));
+    pruner aashnas_pruner(.clk_in(clk_in), .prune_color(prune_color), .board_in(next_board), .pruned_board(pruned_board));
     
     always_ff @(posedge clk_in) begin
         if (rst_in) begin
