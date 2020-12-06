@@ -24,4 +24,5 @@ if __name__ == "__main__":
 	# 		print(prune_str(i,j))
 	for i in range(9):
 		for j in range(9):
-			print(or_wire_str(i,j))
+			print("logic wire_" + str(i) + str(j) + "_" + str(i+1) + str(j) + ";")
+			print("logic wire_" + str(i) + str(j) + "_" + str(i) + str(j+1) + ";")
