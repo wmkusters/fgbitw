@@ -36,21 +36,22 @@ module uar_fsm(
     parameter CLK_PER_SAMP = 423; //CLK_HZ/BAUD_RATE/SAMP_PER_BIT
     parameter WAITING_COUNT = 65_000; //WAIT_TIME*(CLK_HZ/1_000_000_000)
     
-    parameter WAITING = 3'b001;
-    parameter ARMED = 3'b010;
-    parameter READING = 3'b100;
+    parameter WAITING = 4'b0001;
+    parameter ARMED = 4'b0010;
+    parameter READING = 4'b0100;
+    parameter SEND_READY = 4'b1000;
     
     reg [31:0] count;
     reg [8:0]  bd_count;
     
-    logic [2:0] state;
+    logic [3:0] state;
     logic uart_strt;
     logic sig_last;
     logic [PKT_LEN-1:0] data_bus;
     
     always_comb begin
         uart_strt = sig_last && ~sig_in;
-        ready = ~state[2];
+        ready = state[3];
         data_out = data_bus;
     end
     
@@ -85,7 +86,9 @@ module uar_fsm(
             ARMED:
                 state <= (uart_strt) ? READING : state;
             READING:
-                state <= (bd_count == PKT_LEN + 1) ? WAITING : state;
+                state <= (bd_count == PKT_LEN + 1) ? SEND_READY : state;
+            SEND_READY:
+                state <= WAITING;
             default:
                 state <= WAITING;
         endcase

@@ -29,7 +29,8 @@ module top_level(
     output logic[3:0] vga_g,
     output logic vga_hs,
     output logic vga_vs,
-    output logic [1:0] ja
+    output logic [1:0] ja,
+    output logic [1:0] led
     );
     
     //COMM PARAMS
@@ -68,6 +69,7 @@ module top_level(
     logic rx_ready;
     logic tx_ready;
     logic my_color;                         //1 = White; 0 = Black
+    assign my_color = sw[15];
     logic turn;
     logic my_turn;
     assign my_turn = (turn == my_color);
@@ -76,13 +78,15 @@ module top_level(
     logic [7:0] io_out_move;
     assign io_out_move = sw[7:0];               //TEMPORARY
     logic [7:0] move;
-    assign move = (my_turn ? sw[7:0] : rx_bus); //muxing btwn I/O move and RX move
+    assign move = my_turn ? sw[7:0] : rx_bus;   //muxing btwn I/O move and RX move
     logic [1:0] board [8:0][8:0];
+    
+    assign led[0] = turn;
+    assign led[1] = my_turn;
 
     game_fsm game_fsm1(.clk_in(clk_65mhz),
                        .reset(reset),
-                       .move_avail(move_avail_pulse),
-                       .rx_ready(rx_ready),
+                       .move_avail(move_avail_pulse|rx_ready),
                        .my_color(my_color),
                        .move(move),
                        .board_bus(board),
