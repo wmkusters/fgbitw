@@ -23,16 +23,16 @@ module rx(
     input clk_in,
     input logic rst_in,
     input logic rx,
-    output logic [161:0] data_out,
+    output logic [7:0] data_out,
     output logic ready
     );
     parameter CLK_HZ = 65_000_000;
     parameter BAUD_RATE = 9600;
     parameter SAMP_PER_BIT = 16;
-    parameter PKT_LEN = 208;
-    parameter WAIT_TIME = 2_000_000; //time in ns
+    parameter PKT_LEN = 8;
+    parameter WAIT_TIME = 1_000_000; //time in ns
     parameter CLK_PER_SAMP = 423; //CLK_HZ/BAUD_RATE/SAMP_PER_BIT
-    parameter WAITING_COUNT = 130_000; //WAIT_TIME*(CLK_HZ/1_000_000_000)
+    parameter WAITING_COUNT = 65_000; //WAIT_TIME*(CLK_HZ/1_000_000_000)
     
     
     logic rx_samp;

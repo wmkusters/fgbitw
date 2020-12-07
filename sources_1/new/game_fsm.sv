@@ -21,7 +21,7 @@
 
 
 module game_fsm(
-                input logic clk_in, reset, move_avail, rx_ready, my_color,
+                input logic clk_in, reset, move_avail, my_color,
                 input logic [7:0] move,
                 output logic [1:0] board_bus [8:0][8:0],
                 output logic turn,
@@ -48,7 +48,7 @@ module game_fsm(
     
     board_updater prune_update(.clk_in(clk_in),
                                .rst_in(reset),
-                               .start_flag(move_avail|rx_ready),
+                               .start_flag(move_avail),
                                .board_bus(board_bus),
                                .ko_board(ko_board),
                                .turn(turn),
