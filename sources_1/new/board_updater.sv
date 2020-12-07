@@ -53,7 +53,7 @@ module board_updater(
                                             '{e, e, e, e, e, e, e, e, e}};
     
     logic [1:0] pruned_board [8:0][8:0];
-    logic [9:0] state;
+    logic [10:0] state;
     logic [1:0] prune_color;
     logic pruned;
     logic prune_pulse;
@@ -87,7 +87,7 @@ module board_updater(
             end
             LOAD_BOARD:
             begin
-                state <= LOAD_MOVE;
+                state <= (move_in == 8'b1111_1111) ? VALID_BOARD : LOAD_MOVE;
                 next_board <= board_bus;
             end
             LOAD_MOVE:
