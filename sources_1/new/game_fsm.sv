@@ -27,7 +27,8 @@ module game_fsm(
                 output logic turn,
                 output logic tx_ready,
                 output logic invalid_move,
-                output logic game_over
+                output logic game_over,
+                output logic [5:0] state
     );
     parameter [1:0] e = 2'b00;
     parameter WAITING           = 6'b000001;
@@ -46,10 +47,9 @@ module game_fsm(
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e}};
     logic [1:0] ko_board [8:0][8:0];
-    logic [4:0] state;
+    //logic [5:0] state;
     logic [1:0] next_board [8:0][8:0];
     logic update_valid;
-    logic passed;
     
     assign game_over = (state == GAME_OVER);
     
@@ -71,14 +71,12 @@ module game_fsm(
             tx_ready <= 0;
             ko_board <= EMPTY_BOARD;
             state <= WAITING;
-            passed <= 0;
         end else begin
             case(state)
                 WAITING:
                 begin
                     tx_ready <= 0;
-                    state <= (move_avail & (move == 8'b1111_1111)) ? PASS: update_valid ? UPDATE_BUS : state;
-                    passed <= 0;
+                    state <= update_valid ? ((move == 8'b1111_1111) ? PASS : UPDATE_BUS) : state;
                 end
                 
                 UPDATE_BUS:
@@ -92,12 +90,11 @@ module game_fsm(
                 begin
                     tx_ready <= (turn == my_color);
                     turn <= ~turn;
-                    state <= (move == 8'b1111_1111) ? PASSED_WAITING : WAITING;
+                    state <= WAITING;
                 end
                 
                 PASS:
                 begin
-                    passed <= 1;
                     turn <= ~turn;
                     tx_ready <= (turn == my_color);
                     state <= PASSED_WAITING;
@@ -106,16 +103,13 @@ module game_fsm(
                 PASSED_WAITING:
                 begin
                     tx_ready <= 0;
-                    state <= (move_avail & (move == 8'b1111_1111)) ? GAME_OVER: update_valid ? UPDATE_BUS : state;
-                    passed <= 1;
+                    state <= update_valid ? ((move == 8'b1111_1111) ? GAME_OVER : UPDATE_BUS) : state;
                 end
                 
                 GAME_OVER:
                 begin
                     state <= GAME_OVER;
                 end
-                
-                default: state <= WAITING;
             endcase
         end
     end

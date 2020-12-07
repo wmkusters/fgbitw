@@ -24,7 +24,7 @@ module top_level(
     input [15:0] sw,
     input btnc, btnu, btnd, //btnl, btnr,
     input logic [1:0] jb,
-    output logic [1:0] led,
+    output logic [15:0] led,
     output logic[3:0] vga_r,
     output logic[3:0] vga_b,
     output logic[3:0] vga_g,
@@ -100,7 +100,8 @@ module top_level(
                        .turn(turn),
                        .tx_ready(tx_ready),
                        .invalid_move(invalid_move),
-                       .game_over(game_over));
+                       .game_over(game_over),
+                       .state(led[7:2]));
 
     display display1(.clk(clk_65mhz),
                      .reset(reset),
@@ -140,12 +141,16 @@ module top_level(
      
     //hex display
     parameter [5:0] BLANK   = 5'd0;
+    parameter [5:0] C       = 5'd3;
     parameter [5:0] E       = 5'd5;
+    parameter [5:0] J       = 5'd10;
     parameter [5:0] L       = 5'd12;
     parameter [5:0] O       = 5'd15;
     parameter [5:0] R       = 5'd18;
     parameter [5:0] S       = 5'd19;
-    logic [5:0] LOSER [7:0]     = '{BLANK, BLANK,     L,     O,     S,     E,     R, BLANK};
+    parameter [5:0] U       = 5'd21;
+    parameter [5:0] X       = 5'd24;
+    logic [5:0] LOSER [7:0]     = '{    J,     O,     E, BLANK,     R,     O,     X, BLANK};
     logic [5:0] EMPTY_HEX [7:0] = '{BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK};
     
     logic [5:0] seg_data [7:0];      //  instantiate 7-segment display; display (8) 4-bit hex
@@ -306,18 +311,18 @@ module display_alphahex(
      
     logic [bits:0] counter = 0;  // clear on power up
      
-    logic [6:0] segments[15:0]; // 16 7 bit memorys
+    logic [6:0] segments[26:0]; // 16 7 bit memorys
     assign segments[0]  = 7'b111_1111;  // inverted logic; gfedcba
     assign segments[1]  = 7'b111_1001;
     assign segments[2]  = 7'b010_0100;
-    assign segments[3]  = 7'b011_0000;
+    assign segments[3]  = 7'b100_0110;  // C
     assign segments[4]  = 7'b001_1001;
     assign segments[5]  = 7'b000_0110;  // E
     assign segments[6]  = 7'b000_0010;
     assign segments[7]  = 7'b111_1000;
     assign segments[8]  = 7'b000_0000;
     assign segments[9]  = 7'b001_1000;
-    assign segments[10] = 7'b000_1000;
+    assign segments[10] = 7'b110_0001;  // J
     assign segments[11] = 7'b000_0011;
     assign segments[12] = 7'b100_0111;  // L
     assign segments[13] = 7'b010_0001;
@@ -328,10 +333,10 @@ module display_alphahex(
     assign segments[18] = 7'b100_1110;  // R
     assign segments[19] = 7'b001_0010;  // S
     assign segments[20] = 7'b000_0110;
-    assign segments[21] = 7'b000_1110;
+    assign segments[21] = 7'b100_0001;  // U
     assign segments[22] = 7'b010_0111;
     assign segments[23] = 7'b010_0001;
-    assign segments[24] = 7'b000_0110;
+    assign segments[24] = 7'b000_1001;  // X
     assign segments[25] = 7'b000_1110;
     assign segments[26] = 7'b000_1000;
      

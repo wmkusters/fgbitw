@@ -53,7 +53,7 @@ module board_updater(
                                             '{e, e, e, e, e, e, e, e, e}};
     
     logic [1:0] pruned_board [8:0][8:0];
-    logic [10:0] state;
+    logic [9:0] state;
     logic [1:0] prune_color;
     logic pruned;
     logic prune_pulse;
