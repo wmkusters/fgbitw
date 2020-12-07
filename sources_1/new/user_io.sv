@@ -45,29 +45,36 @@ module user_io(
     parameter e = 2'b00;
 
     logic [7:0] cursor;
-    logic [3:0] state, next_state, dir;
-    logic valid_move, cursor_done, up_valid, down_valid, left_valid, right_valid;
+    logic [3:0] state, next_state, dir, dir_mem;
+    logic valid_move, cursor_done, up_valid, down_valid, left_valid, right_valid, btn_press;
     always_comb begin
         // valid_move = ((board[move_out[7:4]][move_out[3:0]] == e) & (move_out[7:4] < 4'b1001) & (move_out[3:0] < 4'b1001));
         up_valid = ((move_out[7:4] + 1 < 9) & (board[move_out[7:4] + 1][move_out[3:0]] == e));
         down_valid = ((move_out[7:4] - 1 > 0) & (board[move_out[7:4] - 1][move_out[3:0]] == e));
         right_valid = ((move_out[3:0] - 1 > 0) & (board[move_out[7:4]][move_out[3:0]-1] == e));
         left_valid = ((move_out[3:0] + 1 < 8) & (board[move_out[7:4]][move_out[3:0]+1] == e));
+        btn_press = (up | down | left | right);
 
         if (up) dir = UP;
         else if (down) dir = DOWN;
         else if (left) dir = LEFT;
         else if (right) dir = RIGHT;
+        else dir = 0;
 
         if (~my_turn) begin
             next_state = LOCKED; // debounce should cover time taken to get new turn
-        end else if (make_move & (state == WAITING) & valid_move) begin 
+        end else if (make_move & (state == WAITING)) begin 
+        // end else if (make_move & (state == WAITING) & valid_move) begin 
             next_state = PULSE_MOVE;
-        end else if ((up | down | left | right) & (state == WAITING)) begin
+        end else if (btn_press & (state == WAITING)) begin
             next_state = MOVE_CURSOR;
         end else if (cursor_done & (state == MOVE_CURSOR)) begin
             next_state = WAITING;
-        end
+        end else next_state = state;
+
+        case (dir_mem)
+            UP: move_out[7:4]
+
         if (state == LOCKED) locked = 1;
         else locked = 0;
     end
@@ -84,42 +91,43 @@ module user_io(
                 WAITING: begin
                     move_ready <= 0;
                     cursor_done <= 0;
+                    dir_mem <= dir;
                 end
                 PULSE_MOVE: begin
                     move_ready <= 1;
                 end
                 MOVE_CURSOR: begin
-                    case (dir)
+                    case (dir_mem)
                         UP: begin
-                            cursor_done <= up_valid ? 1 : 0;
+                            // cursor_done <= up_valid ? 1 : 0;
                             cursor[7:4] <= up_valid ? (move_out[7:4] + 1) : cursor[7:4];
                             if (move_out[7:4] + 1 == 9) begin
                                 cursor_done <= 1;
-                                move_out <= cursor_pos;
+                                move_out <= cursor;
                             end else move_out[7:4] <= move_out[7:4] + 1;
                         end
                         DOWN: begin
-                            cursor_done <= down_valid ? 1 : 0;  
+                            // cursor_done <= down_valid ? 1 : 0;  
                             cursor[7:4] <= down_valid ? (move_out[7:4] - 1) : cursor[7:4];
                             if (move_out[7:4] - 1 == 0) begin
                                 cursor_done <= 1;
-                                move_out <= cursor_pos;
+                                move_out <= cursor;
                             end else move_out[7:4] <= move_out[7:4] - 1;
                         end
                         LEFT: begin 
-                            cursor_done <= left_valid ? 1 : 0;                            
+                            // cursor_done <= left_valid ? 1 : 0;                            
                             cursor[3:0] <= left_valid ? (move_out[3:0] + 1) : cursor[3:0];
                             if (move_out[3:0] + 1 == 0) begin
                                 cursor_done <= 1;
-                                move_out <= cursor_pos;
+                                move_out <= cursor;
                             end else move_out[3:0] <= move_out[3:0] + 1;
                         end
                         RIGHT: begin
-                            cursor_done <= right_valid ? 1 : 0;
+                            // cursor_done <= right_valid ? 1 : 0;
                             cursor[3:0] <= right_valid ? (move_out[3:0] - 1) : cursor[3:0];
                             if (move_out[3:0] - 1 == 0) begin
                                 cursor_done <= 1;
-                                move_out <= cursor_pos;
+                                move_out <= cursor;
                             end else move_out[3:0] <= move_out[3:0] - 1;
                         end
                         default: cursor <= cursor;

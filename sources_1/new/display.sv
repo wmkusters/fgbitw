@@ -24,6 +24,7 @@ module display(
     input clk, reset,
     input [15:0] sw,
     input logic [1:0] board [8:0][8:0],
+    input logic [7:0] cursor_pos,
     output logic[3:0] vga_r,
     output logic[3:0] vga_b,
     output logic[3:0] vga_g,
@@ -41,7 +42,7 @@ module display(
                .hsync_out(hsync),.vsync_out(vsync),.blank_out(blank));
                                             
     logic phsync,pvsync,pblank;
-    go_game gg(.vclock_in(clk),.reset_in(reset),
+    go_game gg(.vclock_in(clk),.reset_in(reset), .cursor_pos(cursor_pos),
                 .hcount_in(hcount),.vcount_in(vcount), .board(board),
                 .hsync_in(hsync),.vsync_in(vsync),.blank_in(blank),
                 .phsync_out(phsync),.pvsync_out(pvsync),.pblank_out(pblank),.pixel_out(pixel));
@@ -74,7 +75,8 @@ endmodule
 module go_game(
    input vclock_in,        // 65MHz clock
    input reset_in,         // 1 to initialize module
-   input logic [1:0] board [0:8][0:8],
+   input logic [1:0] board [8:0][8:0],
+   input logic [7:0] cursor_pos,
    input [10:0] hcount_in, // horizontal index of current pixel (0..1023)
    input [9:0]  vcount_in, // vertical index of current pixel (0..767)
    input hsync_in,         // XVGA horizontal sync signal (active low)
@@ -175,9 +177,10 @@ module go_game(
                      (hcount_in < hgrid_bounds[i][j][15:0])  &
                      (vcount_in > vgrid_bounds[i][j][15:0])  &
                      (vcount_in < vgrid_bounds[i][j][31:16]));
-        on_tile = (board[i][j] == b | board[i][j] == w | board[i][j] == r);
+        on_tile = (board[i][j] == b | board[i][j] == w | board[i][j] == r | ((cursor_pos[7:4] == i) & (cursor_pos[3:0] == j)));
         if (board[i][j] == b) tilecolor = 12'b0;
         else if (board[i][j] == r) tilecolor = 12'b1111_0000_0000;
+        else if ((cursor_pos[7:4] == i) & (cursor_pos[3:0] == j)) tilecolor = 12'b0000_1111_0000;
         else  tilecolor = 12'b1111_1111_1111;
    end
    
