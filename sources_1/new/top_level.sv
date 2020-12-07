@@ -40,6 +40,7 @@ module top_level(
     input [15:0] sw,
     input btnc, btnu, btnd,//btnl, btnr, btnd,
     input logic [1:0] jb,
+    output logic [1:0] led,
     output logic[3:0] vga_r,
     output logic[3:0] vga_b,
     output logic[3:0] vga_g,
@@ -73,15 +74,15 @@ module top_level(
                  .noisy_in(btnc),
                  .clean_out(reset));
     
-    logic move_avail;
+    logic move_btn;
     debounce db2 (.reset_in(reset),
                   .clock_in(clk_65mhz),
                   .noisy_in(btnu),
-                  .clean_out(move_avail));
-    logic move_avail_pulse;
-    pulser pulser1(.trigger_in(move_avail),
+                  .clean_out(move_btn));
+    logic move_btn_pulse;
+    pulser pulser1(.trigger_in(move_btn),
                    .clk_in(clk_65mhz),
-                   .pulse_out(move_avail_pulse)); 
+                   .pulse_out(move_btn_pulse)); 
 
     logic rx_ready;
     debounce db3 (.reset_in(reset),
@@ -94,20 +95,32 @@ module top_level(
                    .pulse_out(rx_ready_pulse)); 
 
     logic tx_ready;
-    logic turn;
+    logic turn; // 1 = white's turn || 2 = black's turn
+
+    assign led[1] = turn;
+    logic my_turn, my_color, move_avail;
+    logic [7:0] move_in, move_io, move;
+    assign move_in = sw[7:0];
+    assign my_color = sw[15];
+    assign my_turn = (turn == my_color);
+    user_io user_io1(.clk_in(clk_65mhz),
+                     .reset(reset),
+                     .my_turn(my_turn),
+                     .make_move(move_btn_pulse),
+                     .move_in(move_in),
+                     .move_ready(move_avail),
+                     .locked(led[0]),
+                     .move_out(move_io));
 
     // logic [161:0] rx_bus;
     // logic [PKT_LEN-1:0] tx_bus;
-    logic move_avail;
-    logic [7:0] move;
-    assign move = sw[7:0];
     logic [1:0] board [8:0][8:0];
-                          
+    assign move = move_io;
     game_fsm game_fsm1(.clk_in(clk_65mhz),
                        .reset(reset),
-                       .move_avail(move_avail_pulse),
+                       .move_avail(move_avail),
                        .rx_ready(rx_ready_pulse),
-                       .my_color(sw[8]),
+                       .my_color(my_color),
                        .move(move),
                        .board_bus(board),
                        .turn(turn),
