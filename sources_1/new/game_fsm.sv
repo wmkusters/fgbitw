@@ -27,16 +27,16 @@ module game_fsm(
                 output logic turn,
                 output logic tx_ready,
                 output logic invalid_move,
-                output logic game_over,
-                output logic [5:0] state
+                output logic game_over
     );
     parameter [1:0] e = 2'b00;
-    parameter WAITING           = 6'b000001;
-    parameter UPDATE_BUS        = 6'b000010;
-    parameter SENDING_MOVE      = 6'b000100;
-    parameter PASS              = 6'b001000;
-    parameter PASSED_WAITING    = 6'b010000;
-    parameter GAME_OVER         = 6'b100000;
+    parameter WAITING           = 7'b0000001;
+    parameter UPDATE_BUS        = 7'b0000010;
+    parameter SENDING_MOVE      = 7'b0000100;
+    parameter PASS              = 7'b0001000;
+    parameter PASSED_WAITING    = 7'b0010000;
+    parameter GAME_OVER_SEND    = 7'b0100000;
+    parameter GAME_OVER         = 7'b1000000;
     logic [1:0] EMPTY_BOARD [8:0][8:0] =    '{'{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
@@ -47,7 +47,7 @@ module game_fsm(
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e}};
     logic [1:0] ko_board [8:0][8:0];
-    //logic [5:0] state;
+    logic [6:0] state;
     logic [1:0] next_board [8:0][8:0];
     logic update_valid;
     
@@ -103,7 +103,13 @@ module game_fsm(
                 PASSED_WAITING:
                 begin
                     tx_ready <= 0;
-                    state <= update_valid ? ((move == 8'b1111_1111) ? GAME_OVER : UPDATE_BUS) : state;
+                    state <= update_valid ? ((move == 8'b1111_1111) ? GAME_OVER_SEND : UPDATE_BUS) : state;
+                end
+                
+                GAME_OVER_SEND:
+                begin
+                    tx_ready <= (turn == my_color);
+                    state <= GAME_OVER;
                 end
                 
                 GAME_OVER:

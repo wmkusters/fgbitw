@@ -100,8 +100,7 @@ module top_level(
                        .turn(turn),
                        .tx_ready(tx_ready),
                        .invalid_move(invalid_move),
-                       .game_over(game_over),
-                       .state(led[7:2]));
+                       .game_over(game_over));
 
     display display1(.clk(clk_65mhz),
                      .reset(reset),
