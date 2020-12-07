@@ -95,20 +95,13 @@ module top_level(
 
     logic tx_ready;
     logic turn;
-    // logic move_avail;
 
     // logic [161:0] rx_bus;
     // logic [PKT_LEN-1:0] tx_bus;
     logic move_avail;
     logic [7:0] move;
     assign move = sw[7:0];
-    // logic [1:0] rx_board [8:0][8:0];
     logic [1:0] board [8:0][8:0];
-    
-    // bus_arr_converter bac(.arr(board),
-    //                       .bus(rx_bus),
-    //                       .out_arr(rx_board),
-    //                       .out_bus(tx_bus));
                           
     game_fsm game_fsm1(.clk_in(clk_65mhz),
                        .reset(reset),
@@ -120,28 +113,6 @@ module top_level(
                        .turn(turn),
                        .tx_ready(tx_ready),
                        .invalid_move(invalid_move));
-
-    // logic [1:0] test_board [8:0][8:0] =   '{'{e, e, e, e, e, e, b, w, e},
-    //                                         '{e, e, e, e, e, b, w, e, w},
-    //                                         '{e, e, e, e, e, e, b, w, e},
-    //                                         '{e, e, e, w, b, e, e, e, e},
-    //                                         '{e, e, w, b, e, b, e, e, w},
-    //                                         '{e, e, e, w, b, w, e, e, w},
-    //                                         '{e, e, e, w, w, e, e, e, e},
-    //                                         '{e, e, e, e, e, e, e, e, e},
-    //                                         '{e, e, e, e, e, e, e, e, e}};
-
-    // logic [1:0] next_board [8:0][8:0];                                            
-    // assign move = sw[7:0]; 
-    // logic board_ready;
-    // board_updater updater(.clk_in(clk_65mhz),
-    //                       .rst_in(reset),
-    //                       .start_flag(tx_btn),
-    //                       .board_bus(test_board),
-    //                       .turn(sw[8]),
-    //                       .move_in(move),
-    //                       .next_board(next_board),
-    //                       .board_ready(board_ready)); 
 
     display display1(.clk(clk_65mhz),
                      .reset(reset),
