@@ -41,7 +41,12 @@ module user_io(
     parameter DOWN = 4'b0100;
     parameter LEFT = 4'b0010;
     parameter RIGHT = 4'b0001;
-    
+   
+    parameter RIGHT_EDGE = 4'b1000;
+    parameter LEFT_EDGE = 4'b0000;
+    parameter TOP_EDGE = 4'b0000;
+    parameter BOT_EDGE = 4'b0000;
+
     parameter e = 2'b00;
 
     logic [7:0] cursor;
@@ -54,6 +59,11 @@ module user_io(
         right_valid = ((move_out[3:0] - 1 > 0) & (board[move_out[7:4]][move_out[3:0]-1] == e));
         left_valid = ((move_out[3:0] + 1 < 8) & (board[move_out[7:4]][move_out[3:0]+1] == e));
         btn_press = (up | down | left | right);
+        
+        right_move = move_out[3:0] + 1;
+        up_move = move_out[7:4] - 1;
+        down_move = move_out[7:4] + 1;
+        left_move = move_out[3:0] - 1;
 
         if (up) dir = UP;
         else if (down) dir = DOWN;
@@ -72,8 +82,14 @@ module user_io(
             next_state = WAITING;
         end else next_state = state;
 
-        case (dir_mem)
-            UP: move_out[7:4]
+        if (state == MOVE_CURSOR) begin
+            case (dir_mem)
+                UP: cursor_done = (up_valid | (move_out[7:4] + 1 == 9));
+                DOWN: cursor_done = (down_valid | (move_out[7:4] - 1 == 0)); 
+                LEFT: cursor_done = (left_valid | (move_out[3:0] - 1 == 9));
+                RIGHT: cursor_done = (right_valid | (move_out[3:0] + 1 == 9));
+            endcase
+        end else cursor_done = 0;
 
         if (state == LOCKED) locked = 1;
         else locked = 0;
@@ -90,7 +106,7 @@ module user_io(
             case (state)
                 WAITING: begin
                     move_ready <= 0;
-                    cursor_done <= 0;
+                    // cursor_done <= 0;
                     dir_mem <= dir;
                 end
                 PULSE_MOVE: begin
@@ -100,42 +116,40 @@ module user_io(
                     case (dir_mem)
                         UP: begin
                             // cursor_done <= up_valid ? 1 : 0;
-                            cursor[7:4] <= up_valid ? (move_out[7:4] + 1) : cursor[7:4];
-                            if (move_out[7:4] + 1 == 9) begin
-                                cursor_done <= 1;
+                            cursor[7:4] <= up_valid ? (up_move) : cursor[7:4];
+                            if (up_move == TOP_EDGE  1) begin
+                                // cursor_done <= 1;
                                 move_out <= cursor;
-                            end else move_out[7:4] <= move_out[7:4] + 1;
+                            end else move_out[7:4] <= up_move;
                         end
                         DOWN: begin
                             // cursor_done <= down_valid ? 1 : 0;  
-                            cursor[7:4] <= down_valid ? (move_out[7:4] - 1) : cursor[7:4];
-                            if (move_out[7:4] - 1 == 0) begin
-                                cursor_done <= 1;
+                            cursor[7:4] <= down_valid ? (down_move) : cursor[7:4];
+                            if (down_move == BOT_EDGE + 1) begin
+                                // cursor_done <= 1;
                                 move_out <= cursor;
-                            end else move_out[7:4] <= move_out[7:4] - 1;
+                            end else move_out[7:4] <= down_move;
                         end
                         LEFT: begin 
                             // cursor_done <= left_valid ? 1 : 0;                            
-                            cursor[3:0] <= left_valid ? (move_out[3:0] + 1) : cursor[3:0];
-                            if (move_out[3:0] + 1 == 0) begin
-                                cursor_done <= 1;
-                                move_out <= cursor;
-                            end else move_out[3:0] <= move_out[3:0] + 1;
-                        end
-                        RIGHT: begin
-                            // cursor_done <= right_valid ? 1 : 0;
-                            cursor[3:0] <= right_valid ? (move_out[3:0] - 1) : cursor[3:0];
-                            if (move_out[3:0] - 1 == 0) begin
-                                cursor_done <= 1;
+                            cursor[3:0] <= left_valid ? (move_out[3:0] - 1) : cursor[3:0];
+                            if (move_out[3:0] + 1 == 9) begin
+                                // cursor_done <= 1;
                                 move_out <= cursor;
                             end else move_out[3:0] <= move_out[3:0] - 1;
+                        end
+                        RIGHT: begin
+                            cursor[3:0] <= right_valid ? (right_move) : cursor[3:0];
+                            if (right_move == RIGHT_EDGE + 1) begin
+                                move_out <= cursor;
+                            end else move_out[3:0] <= right_move;
                         end
                         default: cursor <= cursor;
                     endcase
                 end
                 LOCKED: begin
                     move_ready <= 0;
-                    cursor_done <= 0;
+                    // cursor_done <= 0;
                 end 
                 default: state <= WAITING;
             endcase
