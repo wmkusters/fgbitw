@@ -89,7 +89,7 @@ module top_level(
                   .noisy_in(btnd),
                   .clean_out(rx_ready));
     logic rx_ready_pulse;
-    pulser pulser1(.trigger_in(rx_ready),
+    pulser pulser2(.trigger_in(rx_ready),
                    .clk_in(clk_65mhz),
                    .pulse_out(rx_ready_pulse)); 
 
@@ -146,7 +146,7 @@ module top_level(
     display display1(.clk(clk_65mhz),
                      .reset(reset),
                      .sw(sw),
-                     .board(next_board),
+                     .board(board),
                      .vga_r(vga_r),
                      .vga_b(vga_b),
                      .vga_g(vga_g),

@@ -31,7 +31,7 @@ module board_updater(
     output logic [1:0] next_board [8:0][8:0],
     output logic board_valid, board_invalid
     );
-    parameter WAITING         = 10'b00_00000001;
+    parameter WAITING         = 10'b00_0000_0001;
     parameter LOAD_BOARD      = 10'b00_0000_0010;
     parameter LOAD_MOVE       = 10'b00_0000_0100;
     parameter PULSE_PRUNE_1   = 10'b00_0000_1000;
@@ -53,7 +53,7 @@ module board_updater(
                                             '{e, e, e, e, e, e, e, e, e}};
     
     logic [1:0] pruned_board [8:0][8:0];
-    logic [8:0] state;
+    logic [9:0] state;
     logic [1:0] prune_color;
     logic pruned;
     logic prune_pulse;
