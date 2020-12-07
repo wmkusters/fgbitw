@@ -38,7 +38,7 @@
 module top_level(
     input clk_100mhz,
     input [15:0] sw,
-    input btnc, btnu, //btnl, btnr, btnd,
+    input btnc, btnu, btnd,//btnl, btnr, btnd,
     input logic [1:0] jb,
     output logic[3:0] vga_r,
     output logic[3:0] vga_b,
@@ -68,61 +68,85 @@ module top_level(
     
     // btnc button is user reset
     logic reset;
-    debounce db1(.reset_in(btnc),.clock_in(clk_65mhz),.noisy_in(btnc),.clean_out(reset));
+    debounce db1(.reset_in(btnc),
+                 .clock_in(clk_65mhz),
+                 .noisy_in(btnc),
+                 .clean_out(reset));
     
-    logic tx_btn;
-    debounce db2 (.reset_in(reset), .clock_in(clk_65mhz), .noisy_in(btnu), .clean_out(tx_btn));
-    
+    logic move_avail;
+    debounce db2 (.reset_in(reset),
+                  .clock_in(clk_65mhz),
+                  .noisy_in(btnu),
+                  .clean_out(move_avail));
+    logic move_avail_pulse;
+    pulser pulser1(.trigger_in(move_avail),
+                   .clk_in(clk_65mhz),
+                   .pulse_out(move_avail_pulse)); 
+
     logic rx_ready;
+    debounce db3 (.reset_in(reset),
+                  .clock_in(clk_65mhz),
+                  .noisy_in(btnd),
+                  .clean_out(rx_ready));
+    logic rx_ready_pulse;
+    pulser pulser2(.trigger_in(rx_ready),
+                   .clk_in(clk_65mhz),
+                   .pulse_out(rx_ready_pulse)); 
+
+    logic tx_ready;
+    logic turn;
+    // logic move_avail;
+
     // logic [161:0] rx_bus;
     // logic [PKT_LEN-1:0] tx_bus;
     logic move_avail;
     logic [7:0] move;
+    assign move = sw[7:0];
     // logic [1:0] rx_board [8:0][8:0];
-    // logic [1:0] board [8:0][8:0];
+    logic [1:0] board [8:0][8:0];
     
     // bus_arr_converter bac(.arr(board),
     //                       .bus(rx_bus),
     //                       .out_arr(rx_board),
     //                       .out_bus(tx_bus));
                           
-    // game_fsm game(.clk_in(clk_65mhz),
-    //               .reset(reset),
-    //               .board_sel(sw[0]),
-    //               .comm_sel(sw[1]),
-    //               .emp_sel(sw[2]),
-    //               .rx_ready(rx_ready),
-    //               .move_avail(move_avail),
-    //               .move(move),
-    //               .board_in(rx_board),
-    //               .board(board));
+    game_fsm game_fsm1(.clk_in(clk_65mhz),
+                       .reset(reset),
+                       .move_avail(move_avail_pulse),
+                       .rx_ready(rx_ready_pulse),
+                       .my_color(sw[8]),
+                       .move(move),
+                       .board_bus(board),
+                       .turn(turn),
+                       .tx_ready(tx_ready),
+                       .invalid_move(invalid_move));
 
-    logic [1:0] test_board [8:0][8:0] =   '{'{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, w, w, w, w, w, e},
-                                            '{e, e, w, b, b, b, b, b, w},
-                                            '{e, e, w, e, b, w, w, w, w},
-                                            '{e, e, e, w, w, e, e, e, e},
-                                            '{e, e, e, e, e, e, e, e, e},
-                                            '{e, e, e, e, e, e, e, e, e}};
+    // logic [1:0] test_board [8:0][8:0] =   '{'{e, e, e, e, e, e, b, w, e},
+    //                                         '{e, e, e, e, e, b, w, e, w},
+    //                                         '{e, e, e, e, e, e, b, w, e},
+    //                                         '{e, e, e, w, b, e, e, e, e},
+    //                                         '{e, e, w, b, e, b, e, e, w},
+    //                                         '{e, e, e, w, b, w, e, e, w},
+    //                                         '{e, e, e, w, w, e, e, e, e},
+    //                                         '{e, e, e, e, e, e, e, e, e},
+    //                                         '{e, e, e, e, e, e, e, e, e}};
 
-    logic [1:0] next_board [8:0][8:0];                                            
-    assign move = sw[7:0]; 
-    logic board_ready;
-    board_updater updater(.clk_in(clk_65mhz),
-                          .rst_in(reset),
-                          .start_flag(tx_btn),
-                          .board_bus(test_board),
-                          .turn(sw[8]),
-                          .move_in(move),
-                          .next_board(next_board),
-                          .board_ready(board_ready)); 
+    // logic [1:0] next_board [8:0][8:0];                                            
+    // assign move = sw[7:0]; 
+    // logic board_ready;
+    // board_updater updater(.clk_in(clk_65mhz),
+    //                       .rst_in(reset),
+    //                       .start_flag(tx_btn),
+    //                       .board_bus(test_board),
+    //                       .turn(sw[8]),
+    //                       .move_in(move),
+    //                       .next_board(next_board),
+    //                       .board_ready(board_ready)); 
 
     display display1(.clk(clk_65mhz),
                      .reset(reset),
                      .sw(sw),
-                     .board(next_board),
+                     .board(board),
                      .vga_r(vga_r),
                      .vga_b(vga_b),
                      .vga_g(vga_g),
@@ -179,4 +203,27 @@ module debounce (input reset_in, clock_in, noisy_in,
      else count <= count+1;
 
 
+endmodule
+
+module pulser(
+        input logic trigger_in,
+        input logic clk_in,
+        output logic pulse_out
+    );
+    
+    logic old_trigger;
+    logic older_trigger;
+    
+    always_ff @(posedge clk_in)begin
+        older_trigger <= old_trigger;
+        old_trigger <= trigger_in;
+    end
+    
+    always_comb
+        if (old_trigger & !older_trigger) begin
+            pulse_out = 1'b1;
+        end else begin
+            pulse_out = 1'b0;
+        end
+    
 endmodule
