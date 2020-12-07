@@ -38,11 +38,12 @@ module user_io(
 	parameter e = 2'b00;
 
 	logic [3:0] state, next_state;
-
+	logic valid_move;
 	always_comb begin
+		valid_move = ((board[move_in[7:4]][move_in[3:0]] == e) & (move_in[7:4] < 4'b1001) & (move_in[3:0] < 4'b1001));
 		if (~my_turn) begin
 			next_state = LOCKED; // debounce should cover time taken to get new turn
-		end else if (make_move & (state == WAITING) & (board[move_in[7:4]][move_in[3:0]] == e)) begin 
+		end else if (make_move & (state == WAITING) & valid_move) begin 
 			next_state = PULSE_MOVE;
 		end else begin
 	    	next_state = WAITING;

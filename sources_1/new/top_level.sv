@@ -95,11 +95,12 @@ module top_level(
                    .pulse_out(rx_ready_pulse)); 
 
     logic tx_ready;
-    logic turn; // 1 = white's turn || 2 = black's turn
+    logic turn; // 1 = white's turn || 0 = black's turn
 
     assign led[1] = turn;
     logic my_turn, my_color, move_avail;
     logic [7:0] move_in, move_io, move;
+    logic [1:0] board [8:0][8:0];
     assign move_in = sw[7:0];
     assign my_color = sw[15];
     assign my_turn = (turn == my_color);
@@ -108,13 +109,13 @@ module top_level(
                      .my_turn(my_turn),
                      .make_move(move_btn_pulse),
                      .move_in(move_in),
+                     .board(board),
                      .move_ready(move_avail),
                      .locked(led[0]),
                      .move_out(move_io));
 
     // logic [161:0] rx_bus;
     // logic [PKT_LEN-1:0] tx_bus;
-    logic [1:0] board [8:0][8:0];
     assign move = move_io;
     game_fsm game_fsm1(.clk_in(clk_65mhz),
                        .reset(reset),
