@@ -24,17 +24,17 @@ module uar_fsm(
     input clk_in,
     input logic rst_in,
     input logic sig_in,
-    output logic [161:0] data_out,
+    output logic [7:0] data_out,
     output logic ready
     );
     
     parameter CLK_HZ = 65_000_000;
     parameter BAUD_RATE = 9600;
     parameter SAMP_PER_BIT = 16;
-    parameter PKT_LEN = 208;
-    parameter WAIT_TIME = 2_000_000; //time in ns
+    parameter PKT_LEN = 8;
+    parameter WAIT_TIME = 1_000_000; //time in ns
     parameter CLK_PER_SAMP = 423; //CLK_HZ/BAUD_RATE/SAMP_PER_BIT
-    parameter WAITING_COUNT = 130_000; //WAIT_TIME*(CLK_HZ/1_000_000_000)
+    parameter WAITING_COUNT = 65_000; //WAIT_TIME*(CLK_HZ/1_000_000_000)
     
     parameter WAITING = 3'b001;
     parameter ARMED = 3'b010;
@@ -51,10 +51,7 @@ module uar_fsm(
     always_comb begin
         uart_strt = sig_last && ~sig_in;
         ready = ~state[2];
-        data_out = {data_bus[201:200], data_bus[197:190], data_bus[187:180], data_bus[177:170],
-        data_bus[167:160], data_bus[157:150], data_bus[147:140], data_bus[137:130], data_bus[127:120],
-        data_bus[117:110], data_bus[107:100], data_bus[97:90], data_bus[87:80], data_bus[77:70], data_bus[67:60],
-        data_bus[57:50], data_bus[47:40], data_bus[37:30], data_bus[27:20], data_bus[17:10], data_bus[7:0]};
+        data_out = data_bus;
     end
     
     always_ff @(posedge clk_in) begin
@@ -66,7 +63,7 @@ module uar_fsm(
             state <= WAITING;
             count <= 0;
             bd_count <= 0;
-            data_bus <= 208'h00;
+            data_bus <= 8'h00;
         end else if (state == WAITING) begin
             if (~sig_in) count <= 0;
             else count <= count + 1;

@@ -19,26 +19,10 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
-//module top_level(   input               clk_100mhz,
-//                    input [15:0]        sw,
-//                    input               btnc,
-//                    input               btnd,
-//                    output logic [15:0] led,
-//                    output logic [1:0]  ja
-//    );
-
-//    logic               clean;
-//    logic               old_clean;
-//    logic       [161:0] board_state;
-//    logic       [161:0] rx_board_state;
-//    logic               rx_ready;
-
-
 module top_level(
     input clk_100mhz,
     input [15:0] sw,
-    input btnc, btnu, btnd,//btnl, btnr, btnd,
+    input btnc, btnu, btnd, //btnl, btnr,
     input logic [1:0] jb,
     output logic[3:0] vga_r,
     output logic[3:0] vga_b,
@@ -52,21 +36,18 @@ module top_level(
     parameter CLK_HZ = 65_000_000;
     parameter BAUD_RATE = 9600;
     parameter SAMP_PER_BIT = 16;
-    parameter PKT_LEN = 208;
-    parameter WAIT_TIME = 2_000_000; //time in ns
+    parameter PKT_LEN = 8;
+    parameter WAIT_TIME = 1_000_000; //time in ns
     parameter CLK_PER_SAMP = 423; //CLK_HZ/BAUD_RATE/SAMP_PER_BIT
     parameter DIVISOR = 6771; //CLK_HZ/BAUD_RATE
-    parameter WAITING_COUNT = 130_000; //WAIT_TIME*(CLK_HZ/1_000_000_000)
+    parameter WAITING_COUNT = 65_000; //WAIT_TIME*(CLK_HZ/1_000_000_000)
 
-    parameter [1:0] b = 2'b01;
-    parameter [1:0] w = 2'b10;
-    parameter [1:0] e = 2'b00;
     assign ja[1] = 0;
     
     // create 65mhz system clock, happens to match 1024 x 768 XVGA timing
     clk_wiz clkdivider(.clk_in1(clk_100mhz), .clk_out1(clk_65mhz));
     
-    // btnc button is user reset
+    //btnc button is user reset
     logic reset;
     debounce db1(.reset_in(btnc),
                  .clock_in(clk_65mhz),
@@ -78,36 +59,31 @@ module top_level(
                   .clock_in(clk_65mhz),
                   .noisy_in(btnu),
                   .clean_out(move_avail));
+
     logic move_avail_pulse;
     pulser pulser1(.trigger_in(move_avail),
                    .clk_in(clk_65mhz),
                    .pulse_out(move_avail_pulse)); 
 
     logic rx_ready;
-    debounce db3 (.reset_in(reset),
-                  .clock_in(clk_65mhz),
-                  .noisy_in(btnd),
-                  .clean_out(rx_ready));
-    logic rx_ready_pulse;
-    pulser pulser2(.trigger_in(rx_ready),
-                   .clk_in(clk_65mhz),
-                   .pulse_out(rx_ready_pulse)); 
-
     logic tx_ready;
+    logic my_color;                         //1 = White; 0 = Black
     logic turn;
-
-    // logic [161:0] rx_bus;
-    // logic [PKT_LEN-1:0] tx_bus;
+    logic my_turn;
+    assign my_turn = (turn == my_color);
+    logic [PKT_LEN-1:0] rx_bus;
     logic move_avail;
+    logic [7:0] io_out_move;
+    assign io_out_move = sw[7:0];               //TEMPORARY
     logic [7:0] move;
-    assign move = sw[7:0];
+    assign move = (my_turn ? sw[7:0] : rx_bus); //muxing btwn I/O move and RX move
     logic [1:0] board [8:0][8:0];
-                          
+
     game_fsm game_fsm1(.clk_in(clk_65mhz),
                        .reset(reset),
                        .move_avail(move_avail_pulse),
-                       .rx_ready(rx_ready_pulse),
-                       .my_color(sw[8]),
+                       .rx_ready(rx_ready),
+                       .my_color(my_color),
                        .move(move),
                        .board_bus(board),
                        .turn(turn),
@@ -124,30 +100,30 @@ module top_level(
                      .vga_hs(vga_hs),
                      .vga_vs(vga_vs));
                         
-    // tx #(.CLK_HZ(CLK_HZ),
-    //      .BAUD_RATE(BAUD_RATE),
-    //      .DIVISOR(DIVISOR),
-    //      .PKT_LEN(PKT_LEN))
+     tx #(.CLK_HZ(CLK_HZ),
+          .BAUD_RATE(BAUD_RATE),
+          .DIVISOR(DIVISOR),
+          .PKT_LEN(PKT_LEN))
          
-    //           my_tx(.clk_in(clk_65mhz),
-    //                 .rst_in(reset),
-    //                 .trigger_in(tx_btn),
-    //                 .val_in(tx_bus),
-    //                 .data_out(ja[0]));
+               my_tx(.clk_in(clk_65mhz),
+                     .rst_in(reset),
+                     .trigger_in(tx_ready),
+                     .val_in(move),
+                     .data_out(ja[0]));
 
-    // rx #(.CLK_HZ(CLK_HZ),
-    //       .BAUD_RATE(BAUD_RATE),
-    //       .SAMP_PER_BIT(SAMP_PER_BIT),
-    //       .PKT_LEN(PKT_LEN),
-    //       .WAIT_TIME(WAIT_TIME),
-    //       .CLK_PER_SAMP(CLK_PER_SAMP),
-    //       .WAITING_COUNT(WAITING_COUNT))
+     rx #(.CLK_HZ(CLK_HZ),
+           .BAUD_RATE(BAUD_RATE),
+           .SAMP_PER_BIT(SAMP_PER_BIT),
+           .PKT_LEN(PKT_LEN),
+           .WAIT_TIME(WAIT_TIME),
+           .CLK_PER_SAMP(CLK_PER_SAMP),
+           .WAITING_COUNT(WAITING_COUNT))
           
-    //           my_rx(.clk_in(clk_65mhz),
-    //                 .rst_in(reset),
-    //                 .rx(jb[0]),
-    //                 .ready(rx_ready),
-    //                 .data_out(rx_bus));  
+               my_rx(.clk_in(clk_65mhz),
+                     .rst_in(reset),
+                     .rx(jb[0]),
+                     .ready(rx_ready),
+                     .data_out(rx_bus));  
                                         
 endmodule
 
