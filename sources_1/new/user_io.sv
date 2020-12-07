@@ -86,7 +86,7 @@ module user_io(
             case (dir_mem)
                 UP: cursor_done = (up_valid | (move_out[7:4] + 1 == 9));
                 DOWN: cursor_done = (down_valid | (move_out[7:4] - 1 == 0)); 
-                LEFT: cursor_done = (left_valid | (move_out[3:0] - 1 == 9));
+                LEFT: cursor_done = (left_valid | (move_out[3:0] - 1 == 0));
                 RIGHT: cursor_done = (right_valid | (move_out[3:0] + 1 == 9));
             endcase
         end else cursor_done = 0;
