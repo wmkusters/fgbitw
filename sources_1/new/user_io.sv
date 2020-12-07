@@ -50,7 +50,7 @@ module user_io(
     always_comb begin
         // valid_move = ((board[move_out[7:4]][move_out[3:0]] == e) & (move_out[7:4] < 4'b1001) & (move_out[3:0] < 4'b1001));
         up_valid = ((move_out[7:4] + 1 < 9) & (board[move_out[7:4] + 1][move_out[3:0]] == e));
-        down_valid = ((move_out[7:4] 0 1 > 0) & (board[move_out[7:4] - 1][move_out[3:0]] == e));
+        down_valid = ((move_out[7:4] - 1 > 0) & (board[move_out[7:4] - 1][move_out[3:0]] == e));
         right_valid = ((move_out[3:0] - 1 > 0) & (board[move_out[7:4]][move_out[3:0]-1] == e));
         left_valid = ((move_out[3:0] + 1 < 8) & (board[move_out[7:4]][move_out[3:0]+1] == e));
 
@@ -65,9 +65,7 @@ module user_io(
             next_state = PULSE_MOVE;
         end else if ((up | down | left | right) & (state == WAITING)) begin
             next_state = MOVE_CURSOR;
-        end else if (update_cursor & (state == MOVE_CURSOR)) begin
-            next_state = PULSE_MOVE;
-        end else begin
+        end else if (cursor_done & (state == MOVE_CURSOR)) begin
             next_state = WAITING;
         end
         if (state == LOCKED) locked = 1;
@@ -77,14 +75,15 @@ module user_io(
     always_ff @(posedge clk_in) begin
         if (reset) begin
             move_out <= 8'b0000_0000;
+            cursor <= 8'b0000_0000;
             state <= WAITING;
             move_ready <= 0;
         end else begin
             state <= next_state;
-            move_out <= move_in;
             case (state)
                 WAITING: begin
                     move_ready <= 0;
+                    cursor_done <= 0;
                 end
                 PULSE_MOVE: begin
                     move_ready <= 1;
@@ -97,7 +96,7 @@ module user_io(
                             if (move_out[7:4] + 1 == 9) begin
                                 cursor_done <= 1;
                                 move_out <= cursor_pos;
-                            else move_out[7:4] <= move_out[7:4] + 1;
+                            end else move_out[7:4] <= move_out[7:4] + 1;
                         end
                         DOWN: begin
                             cursor_done <= down_valid ? 1 : 0;  
@@ -105,7 +104,7 @@ module user_io(
                             if (move_out[7:4] - 1 == 0) begin
                                 cursor_done <= 1;
                                 move_out <= cursor_pos;
-                            else move_out[7:4] <= move_out[7:4] - 1;
+                            end else move_out[7:4] <= move_out[7:4] - 1;
                         end
                         LEFT: begin 
                             cursor_done <= left_valid ? 1 : 0;                            
@@ -113,7 +112,7 @@ module user_io(
                             if (move_out[3:0] + 1 == 0) begin
                                 cursor_done <= 1;
                                 move_out <= cursor_pos;
-                            else move_out[3:0] <= move_out[3:0] + 1;
+                            end else move_out[3:0] <= move_out[3:0] + 1;
                         end
                         RIGHT: begin
                             cursor_done <= right_valid ? 1 : 0;
@@ -121,7 +120,7 @@ module user_io(
                             if (move_out[3:0] - 1 == 0) begin
                                 cursor_done <= 1;
                                 move_out <= cursor_pos;
-                            else move_out[3:0] <= move_out[3:0] - 1;
+                            end else move_out[3:0] <= move_out[3:0] - 1;
                         end
                         default: cursor <= cursor;
                     endcase
