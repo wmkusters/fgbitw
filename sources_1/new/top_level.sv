@@ -30,8 +30,7 @@ module top_level(
     output logic[3:0] vga_g,
     output logic vga_hs,
     output logic vga_vs,
-    output logic [1:0] ja,
-    output logic [1:0] led
+    output logic [1:0] ja
     );
     
     //COMM PARAMS
