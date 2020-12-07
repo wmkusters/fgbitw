@@ -80,28 +80,32 @@ module top_level(
                   .clean_out(tx_btn));
     
     logic rx_ready;
+    logic tx_ready;
+    logic turn;
+    logic move_avail;
+    
     // logic [161:0] rx_bus;
     // logic [PKT_LEN-1:0] tx_bus;
     logic move_avail;
     logic [7:0] move;
     // logic [1:0] rx_board [8:0][8:0];
-    // logic [1:0] board [8:0][8:0];
+    logic [1:0] board [8:0][8:0];
     
     // bus_arr_converter bac(.arr(board),
     //                       .bus(rx_bus),
     //                       .out_arr(rx_board),
     //                       .out_bus(tx_bus));
                           
-    // game_fsm game(.clk_in(clk_65mhz),
-    //               .reset(reset),
-    //               .board_sel(sw[0]),
-    //               .comm_sel(sw[1]),
-    //               .emp_sel(sw[2]),
-    //               .rx_ready(rx_ready),
-    //               .move_avail(move_avail),
-    //               .move(move),
-    //               .board_in(rx_board),
-    //               .board(board));
+    game_fsm game_fsm1(.clk_in(clk_65mhz),
+                       .reset(reset),
+                       .move_avail(move_avail),
+                       .rx_ready(rx_ready),
+                       .my_color(sw[8]),
+                       .move(move),
+                       .board_bus(board),
+                       .turn(turn),
+                       .tx_ready(tx_ready),
+                       .invalid_move(invalid_move));
 
     logic [1:0] test_board [8:0][8:0] =   '{'{e, e, e, e, e, e, b, w, e},
                                             '{e, e, e, e, e, b, w, e, w},
