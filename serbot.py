@@ -103,6 +103,7 @@ def main():
                 fpga_move = bin(int(read_data, base=16))
                 print("RXd: ")
                 print(fpga_move)
+                break
             point = point_from_coords(human_move.strip())
             move = goboard.Move.play(point)
         else:
