@@ -24,13 +24,16 @@ module top_level(
     input [15:0] sw,
     input btnc, btnu, btnd, btnl, btnr,
     input logic [1:0] jb,
-    output logic [1:0] led,
+    output logic [9:0] led,
     output logic[3:0] vga_r,
     output logic[3:0] vga_b,
     output logic[3:0] vga_g,
     output logic vga_hs,
     output logic vga_vs,
-    output logic [1:0] ja
+    output logic [1:0] ja,
+    output logic [7:0] an,
+    output logic dp,
+    output logic ca, cb, cc, cd, ce, cf, cg
     );
     
     //COMM PARAMS
@@ -107,27 +110,27 @@ module top_level(
     logic tx_ready;
     logic turn; // 1 = white's turn || 0 = black's turn
 
-    assign led[1] = turn;
+    logic [31:0] seg_data;      //  instantiate 7-segment display; display (8) 4-bit hex
+
     logic my_turn, my_color, move_avail;
-    logic [7:0] move_in, move_io, move;
+    logic [7:0] move_io, move;
     logic [1:0] board [8:0][8:0];
-    assign move_in = sw[7:0];
     assign my_color = sw[14];
     assign my_turn = (turn == my_color);
-    logic [3:0] row, col;
+    assign led[8] = my_turn;
+    assign led[9] = turn;
+
     user_io user_io1(.clk_in(clk_65mhz),
                      .reset(reset),
                      .my_turn(my_turn),
                      .pass_sw(sw[13]),
                      .up(up_pulse), .down(down_pulse),
                      .right(right_pulse), .left(left_pulse),
+                     .leds(led[7:0]),
                      .make_move(move_btn_pulse),
                      .board(board),
                      .move_ready(move_avail),
-                     .locked(led[0]),
-                     .move_out(move_io),
-                     .row(row),
-                     .col(col));
+                     .move_out(move_io));
 
     logic [PKT_LEN-1:0] rx_bus;
     assign move = my_turn ? move_io : rx_bus;   //muxing btwn I/O move and RX move
@@ -176,17 +179,6 @@ module top_level(
                      .rx(jb[0]),
                      .ready(rx_ready),
                      .data_out(rx_bus));  
-
-    logic seg_data [31:0];      //  instantiate 7-segment display; display (8) 4-bit hex
-    logic [6:0] segments;
-    assign seg_data = {24'b0, row, col};
-    assign {cg, cf, ce, cd, cc, cb, ca} = segments[6:0];
-    assign dp = 1'b1;
-    display_8hex(.clk_in(clk_65mhz),
-                 .data_in(seg_data),
-                 .seg_out(segments),
-                 .strobe_out(an));
-                                        
 endmodule
 
 ///////////////////////////////////////////////////////////////////////////////
