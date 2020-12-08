@@ -22,9 +22,9 @@
 module top_level(
     input clk_100mhz,
     input [15:0] sw,
-    input btnc, btnu, btnd, //btnl, btnr,
+    input btnc, btnu, btnd, btnl, btnr,
     input logic [1:0] jb,
-    output logic [15:0] led,
+    output logic [9:0] led,
     output logic[3:0] vga_r,
     output logic[3:0] vga_b,
     output logic[3:0] vga_g,
@@ -52,40 +52,82 @@ module top_level(
     
     //btnc button is user reset
     logic reset;
-    debounce db1(.reset_in(btnc),
+    assign reset = sw[15];
+
+    logic cent_btn;
+    debounce db1(.reset_in(reset),
                  .clock_in(clk_65mhz),
                  .noisy_in(btnc),
-                 .clean_out(reset));
+                 .clean_out(cent_btn));
+    logic move_btn_pulse;
+    pulser pulser1(.trigger_in(cent_btn),
+                   .clk_in(clk_65mhz),
+                   .pulse_out(move_btn_pulse)); 
     
-    logic move_btn;
+    logic up_btn;
     debounce db2 (.reset_in(reset),
                   .clock_in(clk_65mhz),
                   .noisy_in(btnu),
-                  .clean_out(move_btn));
-    logic move_btn_pulse;
-    pulser pulser1(.trigger_in(move_btn),
+                  .clean_out(up_btn));
+    logic up_pulse;
+    pulser pulser2(.trigger_in(up_btn),
                    .clk_in(clk_65mhz),
-                   .pulse_out(move_btn_pulse)); 
+                   .pulse_out(up_pulse)); 
+
+    logic down_btn;
+    debounce db3 (.reset_in(reset),
+                  .clock_in(clk_65mhz),
+                  .noisy_in(btnd),
+                  .clean_out(down_btn));
+    logic down_pulse;
+    pulser pulser3(.trigger_in(down_btn),
+                   .clk_in(clk_65mhz),
+                   .pulse_out(down_pulse)); 
+
+    logic right_btn;
+    debounce db4 (.reset_in(reset),
+                  .clock_in(clk_65mhz),
+                  .noisy_in(btnr),
+                  .clean_out(right_btn));
+    logic right_pulse;
+    pulser pulser4(.trigger_in(right_btn),
+                   .clk_in(clk_65mhz),
+                   .pulse_out(right_pulse)); 
+
+    logic left_btn;
+    debounce db5 (.reset_in(reset),
+                  .clock_in(clk_65mhz),
+                  .noisy_in(btnl),
+                  .clean_out(left_btn));
+    logic left_pulse;
+    pulser pulser5(.trigger_in(left_btn),
+                   .clk_in(clk_65mhz),
+                   .pulse_out(left_pulse)); 
+
 
     logic rx_ready;
     logic tx_ready;
     logic turn; // 1 = white's turn || 0 = black's turn
 
-    assign led[1] = turn;
+
     logic my_turn, my_color, move_avail;
-    logic [7:0] move_in, move_io, move;
+    logic [7:0] move_io, move;
     logic [1:0] board [8:0][8:0];
-    assign move_in = sw[7:0];
-    assign my_color = sw[15];
+    assign my_color = sw[14];
     assign my_turn = (turn == my_color);
+    assign led[8] = my_turn;
+    assign led[9] = turn;
+
     user_io user_io1(.clk_in(clk_65mhz),
                      .reset(reset),
                      .my_turn(my_turn),
+                     .pass_sw(sw[13]),
+                     .up(up_pulse), .down(down_pulse),
+                     .right(right_pulse), .left(left_pulse),
+                     .leds(led[7:0]),
                      .make_move(move_btn_pulse),
-                     .move_in(move_in),
                      .board(board),
                      .move_ready(move_avail),
-                     .locked(led[0]),
                      .move_out(move_io));
 
     logic [PKT_LEN-1:0] rx_bus;
@@ -126,6 +168,7 @@ module top_level(
     display display1(.clk(clk_65mhz),
                      .reset(reset),
                      .sw(sw),
+                     .cursor_pos(move_io),
                      .board(board),
                      .vga_r(vga_r),
                      .vga_b(vga_b),
@@ -157,8 +200,6 @@ module top_level(
                      .rx(jb[0]),
                      .ready(rx_ready),
                      .data_out(rx_bus));  
-                     
-     
     //hex display
     parameter [5:0] BLANK   = 5'd0;
     parameter [5:0] C       = 5'd3;
@@ -183,7 +224,6 @@ module top_level(
     //display_alphahex displayAlph(.clk_in(clk_65mhz),.data_in(seg_data), .seg_out(segments), .strobe_out(an));
     display_8hex displayHex(.clk_in(clk_65mhz),.data_in(seg_8data), .seg_out(segments), .strobe_out(an));
     assign  dp = 1'b1;  // turn off the period
-
 endmodule
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -242,7 +282,6 @@ endmodule
 // Description:  Display 8 hex numbers on 7 segment display
 //
 //////////////////////////////////////////////////////////////////////////////////
-
 module display_8hex(
     input clk_in,                 // system clock
     input [31:0] data_in,         // 8 hex numbers, msb first
