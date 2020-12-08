@@ -46,6 +46,8 @@ module territory_counter(
     logic [1:0] wtprune_board_pruned [8:0][8:0];
     logic [1:0] btprune_board_pdiff [8:0][8:0];
     logic [1:0] wtprune_board_pdiff [8:0][8:0];
+    logic [1:0] board_onlyblack [8:0][8:0];
+    logic [1:0] board_onlywhite [8:0][8:0];
     
     integer i;
     integer j;
@@ -54,9 +56,11 @@ module territory_counter(
         for (i = 0; i < 9; i = i + 1) begin
             for (j = 0; j < 9; j = j + 1) begin
                 btprune_board[i][j] = {~(board_state[i][j][0] ^ board_state[i][j][1]), board_state[i][j][0]};
-                wtprune_board[i][j] = {board_state[i][j][0], ~(board_state[i][j][0] ^ board_state[i][j][1])};
+                wtprune_board[i][j] = {board_state[i][j][1], ~(board_state[i][j][0] ^ board_state[i][j][1])};
                 btprune_board_pdiff[i][j] = btprune_board_pruned[i][j] ^ btprune_board[i][j];
                 wtprune_board_pdiff[i][j] = wtprune_board_pruned[i][j] ^ wtprune_board[i][j];
+                board_onlyblack[i][j] = {1'b0, board_state[i][j][0]};
+                board_onlywhite[i][j] = {board_state[i][j][1], 1'b0};
             end
         end
     end
@@ -80,13 +84,21 @@ module territory_counter(
                          .pruned_board(wtprune_board_pruned), 
                          .done_pulse(wtpruner_done));
     
+    logic [7:0] barea_count;
+    logic [7:0] warea_count;
     logic [7:0] btile_count;
     logic [7:0] wtile_count;
     
     tallier bterr_count(.board(btprune_board_pdiff),
-                        .sum(btile_count));
+                        .sum(barea_count));
                         
     tallier wterr_count(.board(wtprune_board_pdiff),
+                        .sum(warea_count));
+                        
+    tallier bpiece_count(.board(board_onlyblack),
+                        .sum(btile_count));
+                        
+    tallier wpiece_count(.board(board_onlywhite),
                         .sum(wtile_count));
     
     always_ff @(posedge clk_in) begin
@@ -116,8 +128,8 @@ module territory_counter(
                 LOAD_COUNT:
                 begin
                     state <= PULSE_READY;
-                    bcount_out <= btile_count;
-                    wcount_out <= wtile_count;
+                    bcount_out <= btile_count + barea_count;
+                    wcount_out <= wtile_count + warea_count;
                 end
                 PULSE_READY:
                 begin
