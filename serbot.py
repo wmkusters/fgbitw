@@ -75,11 +75,34 @@ def main():
     game = goboard.GameState.new_game(board_size)
     bot = agent.RandomBot()
 
+    s = get_usb_port()  #grab a port
+    print("USB Port: "+str(s)) #print it if you got
+    if s:
+        ser = serial.Serial(port = s,
+            baudrate=9600,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE,
+            bytesize=serial.EIGHTBITS,
+            timeout=0.01) #auto-connects already I guess?
+        print("Serial Connected!")
+        if ser.isOpen():
+             print(ser.name + ' is open...')
+    else:
+        print("No Serial Device :/ Check USB cable connections/device!")
+        exit()
+
+
     while not game.is_over():
         print(chr(27) + "[2J")
-        print_board(game.board)
-        if game.next_player == gotypes.Player.black:
-            human_move = input('-- ')
+        # print_board(game.board)
+        if game.next_player == gotypes.Player.black: 
+            while True:
+            # human_move = input('-- ')
+            read_data = ser.read(1) #read the buffer (99/100 timeout will hit)
+            if read_data != b'':  #if not nothing there.
+                fpga_move = bin(int(read_data, base=16))
+                print("RXd: ")
+                print(fpga_move)
             point = point_from_coords(human_move.strip())
             move = goboard.Move.play(point)
         else:
