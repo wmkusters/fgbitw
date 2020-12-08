@@ -109,7 +109,6 @@ module top_level(
     logic tx_ready;
     logic turn; // 1 = white's turn || 0 = black's turn
 
-    logic [31:0] seg_data;      //  instantiate 7-segment display; display (8) 4-bit hex
 
     logic my_turn, my_color, move_avail;
     logic [7:0] move_io, move;
