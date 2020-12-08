@@ -180,6 +180,7 @@ module go_game(
         on_tile = (board[i][j] == b | board[i][j] == w | board[i][j] == r | ((cursor_pos[7:4] == i) & (cursor_pos[3:0] == j)));
         if (board[i][j] == b) tilecolor = 12'b0;
         else if (board[i][j] == r) tilecolor = 12'b1111_0000_0000;
+        else if (board[i][j] == w) tilecolor = 12'b1111_1111_1111;
         else if ((cursor_pos[7:4] == i) & (cursor_pos[3:0] == j)) tilecolor = 12'b0000_1111_0000;
         else  tilecolor = 12'b1111_1111_1111;
    end

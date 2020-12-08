@@ -122,7 +122,7 @@ module user_io(
                 WAITING: begin
                     move_ready <= 0;
                     dir_mem <= dir;
-                    move_out <= cursor;
+                    move_ready <= pass_sw ? 8'b1111_1111 : move_ready <= 0;
                 end
                 PULSE_MOVE: begin
                     move_ready <= 1;
