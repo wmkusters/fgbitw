@@ -201,17 +201,17 @@ module top_level(
                      .ready(rx_ready),
                      .data_out(rx_bus));  
     //hex display
-    parameter [5:0] BLANK   = 5'd0;
-    parameter [5:0] C       = 5'd3;
-    parameter [5:0] E       = 5'd5;
-    parameter [5:0] J       = 5'd10;
-    parameter [5:0] L       = 5'd12;
-    parameter [5:0] O       = 5'd15;
-    parameter [5:0] R       = 5'd18;
-    parameter [5:0] S       = 5'd19;
-    parameter [5:0] U       = 5'd21;
-    parameter [5:0] X       = 5'd24;
-    //logic [5:0] LOSER [7:0]     = '{    J,     O,     E, BLANK,     R,     O,     X, BLANK};
+    parameter [5:0] BLANK   = 5'd10;
+    parameter [5:0] C       = 5'd13;
+    parameter [5:0] E       = 5'd15;
+    parameter [5:0] J       = 5'd20;
+    parameter [5:0] L       = 5'd22;
+    parameter [5:0] O       = 5'd25;
+    parameter [5:0] R       = 5'd28;
+    parameter [5:0] S       = 5'd29;
+    parameter [5:0] U       = 5'd31;
+    parameter [5:0] X       = 5'd34;
+    logic [5:0] LOSER [7:0]     = '{    J,     O,     E, BLANK,     S,     U,     X, BLANK};
     logic [5:0] EMPTY_HEX [7:0] = '{BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK};
    
     logic [3:0] white_ten, white_one, black_ten, black_one; 
@@ -223,14 +223,14 @@ module top_level(
                                 .dec_out_one(black_one));
 
     logic [5:0] seg_data [7:0];      //  instantiate 7-segment display; display (8) 4-bit hex
-    //assign seg_data = (game_over) ? LOSER : EMPTY_HEX;
-    logic [31:0] seg_8data;
-    assign seg_8data = {4'b0, black_ten, black_one, 4'b0, 4'b0, white_ten, white_one, 4'b0};
-    
+    assign seg_data = (game_over) ? LOSER : seg_data;
+    // logic [31:0] seg_8data;
+    // assign seg_8data = {4'b0, black_ten, black_one, 4'b0, 4'b0, white_ten, white_one, 4'b0};
+    assign seg_data = '{black_ten, black_one, BLANK, BLANK, BLANK, BLANK, white_ten, white_one}; 
     logic [6:0] segments;
     assign {cg, cf, ce, cd, cc, cb, ca} = segments[6:0];
     //display_alphahex displayAlph(.clk_in(clk_65mhz),.data_in(seg_data), .seg_out(segments), .strobe_out(an));
-    display_8hex displayHex(.clk_in(clk_65mhz),.data_in(seg_8data), .seg_out(segments), .strobe_out(an));
+    display_alphaNumhex displayHex(.clk_in(clk_65mhz),.data_in(seg_data), .seg_out(segments), .strobe_out(an));
     assign  dp = 1'b1;  // turn off the period
 endmodule
 
