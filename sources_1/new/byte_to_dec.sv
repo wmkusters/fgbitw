@@ -26,7 +26,7 @@ module byte_to_dec(
     );
 	
 	always_comb begin
-		if (byte_in < 7'd9) begin
+		if (byte_in < 7'd10) begin
 			dec_out_ten = 4'b0000;
 			dec_out_one = byte_in;
 		end else if ((byte_in > 7'd9) & (byte_in < 7'd20)) begin
