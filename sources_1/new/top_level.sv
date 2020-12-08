@@ -24,7 +24,7 @@ module top_level(
     input [15:0] sw,
     input btnc, btnu, btnd, btnl, btnr,
     input logic [1:0] jb,
-    output logic [9:0] led,
+    output logic [15:0] led,
     output logic[3:0] vga_r,
     output logic[3:0] vga_b,
     output logic[3:0] vga_g,
@@ -116,7 +116,7 @@ module top_level(
     assign my_color = sw[14];
     assign my_turn = (turn == my_color);
     assign led[8] = my_turn;
-    assign led[9] = turn;
+    //assign led[9] = turn;
 
     user_io user_io1(.clk_in(clk_65mhz),
                      .reset(reset),
@@ -144,7 +144,7 @@ module top_level(
                        .tx_ready(tx_ready),
                        .invalid_move(invalid_move),
                        .game_over(game_over),
-                       .state_out(fsm_state));
+                       .state(fsm_state));
 
     logic turn_fall_pulse;
     logic turn_rise_pulse;
@@ -205,6 +205,7 @@ module top_level(
                      
     //hex display
     logic [5:0] seg_data [7:0];
+    assign led[15:9] = fsm_state;
     
     seg_disp(.game_over(game_over),
              .my_color(my_color),
@@ -317,7 +318,7 @@ module display_alphaNumhex(
     assign segments[21] = 7'b000_0011;
     assign segments[22] = 7'b100_0111;  // L
     assign segments[23] = 7'b010_1011;
-    assign segments[23] = 7'b010_1011;  // N
+    assign segments[24] = 7'b010_1011;  // N
     assign segments[25] = 7'b100_0000;  // O
     assign segments[26] = 7'b000_1100;  // P
     assign segments[27] = 7'b010_1100;  // ?
