@@ -201,16 +201,16 @@ module top_level(
                      .ready(rx_ready),
                      .data_out(rx_bus));  
     //hex display
-    parameter [5:0] BLANK   = 5'd10;
-    parameter [5:0] C       = 5'd13;
-    parameter [5:0] E       = 5'd15;
-    parameter [5:0] J       = 5'd20;
-    parameter [5:0] L       = 5'd22;
-    parameter [5:0] O       = 5'd25;
-    parameter [5:0] R       = 5'd28;
-    parameter [5:0] S       = 5'd29;
-    parameter [5:0] U       = 5'd31;
-    parameter [5:0] X       = 5'd34;
+    parameter [5:0] BLANK   = 6'd10;
+    parameter [5:0] C       = 6'd13;
+    parameter [5:0] E       = 6'd15;
+    parameter [5:0] J       = 6'd20;
+    parameter [5:0] L       = 6'd22;
+    parameter [5:0] O       = 6'd25;
+    parameter [5:0] R       = 6'd28;
+    parameter [5:0] S       = 6'd29;
+    parameter [5:0] U       = 6'd31;
+    parameter [5:0] X       = 6'd34;
     logic [5:0] LOSER [7:0]     = '{    J,     O,     E, BLANK,     S,     U,     X, BLANK};
     logic [5:0] EMPTY_HEX [7:0] = '{BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK};
    
