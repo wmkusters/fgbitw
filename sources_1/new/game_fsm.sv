@@ -27,7 +27,8 @@ module game_fsm(
                 output logic turn,
                 output logic tx_ready,
                 output logic invalid_move,
-                output logic game_over
+                output logic game_over,
+                output logic [6:0] state
     );
     parameter [1:0] e = 2'b00;
     parameter WAITING           = 7'b0000001;
@@ -47,7 +48,6 @@ module game_fsm(
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e}};
     logic [1:0] ko_board [8:0][8:0];
-    logic [6:0] state;
     logic [1:0] next_board [8:0][8:0];
     logic update_valid;
     

@@ -24,7 +24,7 @@ module top_level(
     input [15:0] sw,
     input btnc, btnu, btnd, btnl, btnr,
     input logic [1:0] jb,
-    output logic [9:0] led,
+    output logic [15:0] led,
     output logic[3:0] vga_r,
     output logic[3:0] vga_b,
     output logic[3:0] vga_g,
@@ -116,7 +116,7 @@ module top_level(
     assign my_color = sw[14];
     assign my_turn = (turn == my_color);
     assign led[8] = my_turn;
-    assign led[9] = turn;
+    //assign led[9] = turn;
 
     user_io user_io1(.clk_in(clk_65mhz),
                      .reset(reset),
@@ -133,6 +133,7 @@ module top_level(
     logic [PKT_LEN-1:0] rx_bus;
     assign move = my_turn ? move_io : rx_bus;   //muxing btwn I/O move and RX move
     logic game_over;
+    logic [6:0] fsm_state;
     game_fsm game_fsm1(.clk_in(clk_65mhz),
                        .reset(reset),
                        .move_avail(move_avail|rx_ready),
@@ -142,7 +143,8 @@ module top_level(
                        .turn(turn),
                        .tx_ready(tx_ready),
                        .invalid_move(invalid_move),
-                       .game_over(game_over));
+                       .game_over(game_over),
+                       .state(fsm_state));
 
     logic turn_fall_pulse;
     logic turn_rise_pulse;
@@ -200,39 +202,26 @@ module top_level(
                      .rx(jb[0]),
                      .ready(rx_ready),
                      .data_out(rx_bus));  
+                     
     //hex display
-    parameter [5:0] BLANK   = 6'd10;
-    parameter [5:0] C       = 6'd13;
-    parameter [5:0] E       = 6'd15;
-    parameter [5:0] J       = 6'd20;
-    parameter [5:0] L       = 6'd22;
-    parameter [5:0] O       = 6'd25;
-    parameter [5:0] R       = 6'd28;
-    parameter [5:0] S       = 6'd29;
-    parameter [5:0] U       = 6'd31;
-    parameter [5:0] X       = 6'd34;
-    logic [5:0] LOSER [7:0]     = '{    J,     O,     E, BLANK,     S,     U,     X, BLANK};
-    logic [5:0] EMPTY_HEX [7:0] = '{BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK};
-   
-    logic [3:0] white_ten, white_one, black_ten, black_one; 
-    byte_to_dec converter_white(.byte_in(white_terr_count),
-                                .dec_out_ten(white_ten),
-                                .dec_out_one(white_one));
-    byte_to_dec converter_black(.byte_in(black_terr_count),
-                                .dec_out_ten(black_ten),
-                                .dec_out_one(black_one));
-
-    logic [5:0] seg_data [7:0];      //  instantiate 7-segment display; display (8) 4-bit hex
-    assign seg_data = (game_over) ? LOSER : terr_data;
-    // logic [31:0] seg_8data;
-    // assign seg_8data = {4'b0, black_ten, black_one, 4'b0, 4'b0, white_ten, white_one, 4'b0};
-    logic [5:0] terr_data [7:0];
-    assign terr_data = '{black_ten, black_one, BLANK, BLANK, BLANK, BLANK, white_ten, white_one}; 
+    logic [5:0] seg_data [7:0];
+    assign led[15:9] = fsm_state;
+    
+    seg_disp(.game_over(game_over),
+             .my_color(my_color),
+             .my_turn(my_turn),
+             .bcount(black_terr_count),
+             .wcount(white_terr_count),
+             .game_state(fsm_state),
+             .pass_sw(sw[13]),
+             .seg_data_out(seg_data)
+    );
+    
     logic [6:0] segments;
     assign {cg, cf, ce, cd, cc, cb, ca} = segments[6:0];
-    //display_alphahex displayAlph(.clk_in(clk_65mhz),.data_in(seg_data), .seg_out(segments), .strobe_out(an));
     display_alphaNumhex displayHex(.clk_in(clk_65mhz),.data_in(seg_data), .seg_out(segments), .strobe_out(an));
     assign  dp = 1'b1;  // turn off the period
+    
 endmodule
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -316,32 +305,32 @@ module display_alphaNumhex(
     assign segments[8]  = 7'b000_0000;
     assign segments[9]  = 7'b001_1000;
     assign segments[10]  = 7'b111_1111;  // inverted logic; gfedcba
-    assign segments[11]  = 7'b111_1001;
+    assign segments[11]  = 7'b000_1000;  //A
     assign segments[12]  = 7'b010_0100;
     assign segments[13]  = 7'b100_0110;  // C
-    assign segments[14]  = 7'b001_1001;
+    assign segments[14]  = 7'b010_0001;  // D
     assign segments[15]  = 7'b000_0110;  // E
     assign segments[16]  = 7'b000_0010;
-    assign segments[17]  = 7'b111_1000;
+    assign segments[17]  = 7'b100_0010;  // G
     assign segments[18]  = 7'b000_0000;
-    assign segments[19]  = 7'b001_1000;
+    assign segments[19]  = 7'b100_1111;  // I
     assign segments[20] = 7'b110_0001;  // J
     assign segments[21] = 7'b000_0011;
     assign segments[22] = 7'b100_0111;  // L
-    assign segments[23] = 7'b010_0001;
-    assign segments[24] = 7'b000_0110;
+    assign segments[23] = 7'b010_1011;
+    assign segments[24] = 7'b010_1011;  // N
     assign segments[25] = 7'b100_0000;  // O
-    assign segments[26] = 7'b000_1000;
-    assign segments[27] = 7'b000_0011;
+    assign segments[26] = 7'b000_1100;  // P
+    assign segments[27] = 7'b010_1100;  // ?
     assign segments[28] = 7'b100_1110;  // R
     assign segments[29] = 7'b001_0010;  // S
-    assign segments[30] = 7'b000_0110;
+    assign segments[30] = 7'b000_0111;  // T
     assign segments[31] = 7'b100_0001;  // U
-    assign segments[32] = 7'b010_0111;
+    assign segments[32] = 7'b100_0001;  // V
     assign segments[33] = 7'b010_0001;
     assign segments[34] = 7'b000_1001;  // X
-    assign segments[35] = 7'b000_1110;
-    assign segments[36] = 7'b000_1000;
+    assign segments[35] = 7'b001_0001;  // Y
+    assign segments[36] = 7'b001_0001;
      
     always_ff @(posedge clk_in) begin
       // Here I am using a counter and select 3 bits which provides
