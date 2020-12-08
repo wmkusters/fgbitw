@@ -213,11 +213,19 @@ module top_level(
     parameter [5:0] X       = 5'd24;
     //logic [5:0] LOSER [7:0]     = '{    J,     O,     E, BLANK,     R,     O,     X, BLANK};
     logic [5:0] EMPTY_HEX [7:0] = '{BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK};
-    
+   
+    logic [3:0] white_ten, white_one, black_ten, black_one; 
+    byte_to_dec converter_white(.byte_in(white_terr_count),
+                                .dec_out_ten(white_ten),
+                                .dec_out_one(white_one));
+    byte_to_dec converter_black(.byte_in(black_terr_count),
+                                .dec_out_ten(black_ten),
+                                .dec_out_one(black_one));
+
     logic [5:0] seg_data [7:0];      //  instantiate 7-segment display; display (8) 4-bit hex
     //assign seg_data = (game_over) ? LOSER : EMPTY_HEX;
     logic [31:0] seg_8data;
-    assign seg_8data = {4'b0, black_terr_count, 4'b0, 4'b0, white_terr_count, 4'b0};
+    assign seg_8data = {4'b0, black_ten, black_one, 4'b0, 4'b0, white_ten, white_one, 4'b0};
     
     logic [6:0] segments;
     assign {cg, cf, ce, cd, cc, cb, ca} = segments[6:0];
