@@ -259,6 +259,12 @@ module debounce (input reset_in, clock_in, noisy_in,
 
 endmodule
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// Pulser on Rising Edges
+//
+///////////////////////////////////////////////////////////////////////////////
+
 module pulser(
         input logic trigger_in,
         input logic clk_in,
@@ -283,25 +289,21 @@ module pulser(
 endmodule
 
 //////////////////////////////////////////////////////////////////////////////////
-// Engineer:   g.p.hom
-// 
-// Create Date:    18:18:59 04/21/2013 
-// Module Name:    display_8hex 
-// Description:  Display 8 hex numbers on 7 segment display
-//
+//  Display letters on a hex
 //////////////////////////////////////////////////////////////////////////////////
-module display_8hex(
-    input clk_in,                 // system clock
-    input [31:0] data_in,         // 8 hex numbers, msb first
-    output logic [6:0] seg_out,     // seven segment display output
-    output logic [7:0] strobe_out   // digit strobe
+
+module display_alphaNumhex(
+    input clk_in,                           // system clock
+    input logic [6:0] data_in [7:0],        // 8 letters\numbers, msl first
+    output logic [6:0] seg_out,             // seven segment display output
+    output logic [7:0] strobe_out           // digit strobe
     );
 
     localparam bits = 13;
      
     logic [bits:0] counter = 0;  // clear on power up
      
-    logic [6:0] segments[15:0]; // 16 7 bit memorys
+    logic [6:0] segments[36:0]; // 13 7 bit memorys
     assign segments[0]  = 7'b100_0000;  // inverted logic
     assign segments[1]  = 7'b111_1001;  // gfedcba
     assign segments[2]  = 7'b010_0100;
@@ -312,104 +314,33 @@ module display_8hex(
     assign segments[7]  = 7'b111_1000;
     assign segments[8]  = 7'b000_0000;
     assign segments[9]  = 7'b001_1000;
-    assign segments[10] = 7'b000_1000;
-    assign segments[11] = 7'b000_0011;
-    assign segments[12] = 7'b010_0111;
-    assign segments[13] = 7'b010_0001;
-    assign segments[14] = 7'b000_0110;
-    assign segments[15] = 7'b000_1110;
-     
-    always_ff @(posedge clk_in) begin
-      // Here I am using a counter and select 3 bits which provides
-      // a reasonable refresh rate starting the left most digit
-      // and moving left.
-      counter <= counter + 1;
-      case (counter[bits:bits-2])
-          3'b000: begin  // use the MSB 4 bits
-                  seg_out <= segments[data_in[31:28]];
-                  strobe_out <= 8'b0111_1111 ;
-                 end
-
-          3'b001: begin
-                  seg_out <= segments[data_in[27:24]];
-                  strobe_out <= 8'b1011_1111 ;
-                 end
-
-          3'b010: begin
-                   seg_out <= segments[data_in[23:20]];
-                   strobe_out <= 8'b1101_1111 ;
-                  end
-          3'b011: begin
-                  seg_out <= segments[data_in[19:16]];
-                  strobe_out <= 8'b1110_1111;        
-                 end
-          3'b100: begin
-                  seg_out <= segments[data_in[15:12]];
-                  strobe_out <= 8'b1111_0111;
-                 end
-
-          3'b101: begin
-                  seg_out <= segments[data_in[11:8]];
-                  strobe_out <= 8'b1111_1011;
-                 end
-
-          3'b110: begin
-                   seg_out <= segments[data_in[7:4]];
-                   strobe_out <= 8'b1111_1101;
-                  end
-          3'b111: begin
-                  seg_out <= segments[data_in[3:0]];
-                  strobe_out <= 8'b1111_1110;
-                 end
-
-       endcase
-      end
-
-endmodule
-
-//////////////////////////////////////////////////////////////////////////////////
-//  Display letters on a hex
-//////////////////////////////////////////////////////////////////////////////////
-
-module display_alphahex(
-    input clk_in,                           // system clock
-    input logic [5:0] data_in [7:0],        // 8 letters, msl first
-    output logic [6:0] seg_out,             // seven segment display output
-    output logic [7:0] strobe_out           // digit strobe
-    );
-
-    localparam bits = 13;
-     
-    logic [bits:0] counter = 0;  // clear on power up
-     
-    logic [6:0] segments[26:0]; // 16 7 bit memorys
-    assign segments[0]  = 7'b111_1111;  // inverted logic; gfedcba
-    assign segments[1]  = 7'b111_1001;
-    assign segments[2]  = 7'b010_0100;
-    assign segments[3]  = 7'b100_0110;  // C
-    assign segments[4]  = 7'b001_1001;
-    assign segments[5]  = 7'b000_0110;  // E
-    assign segments[6]  = 7'b000_0010;
-    assign segments[7]  = 7'b111_1000;
-    assign segments[8]  = 7'b000_0000;
-    assign segments[9]  = 7'b001_1000;
-    assign segments[10] = 7'b110_0001;  // J
-    assign segments[11] = 7'b000_0011;
-    assign segments[12] = 7'b100_0111;  // L
-    assign segments[13] = 7'b010_0001;
-    assign segments[14] = 7'b000_0110;
-    assign segments[15] = 7'b100_0000;  // O
-    assign segments[16] = 7'b000_1000;
-    assign segments[17] = 7'b000_0011;
-    assign segments[18] = 7'b100_1110;  // R
-    assign segments[19] = 7'b001_0010;  // S
-    assign segments[20] = 7'b000_0110;
-    assign segments[21] = 7'b100_0001;  // U
-    assign segments[22] = 7'b010_0111;
+    assign segments[10]  = 7'b111_1111;  // inverted logic; gfedcba
+    assign segments[11]  = 7'b111_1001;
+    assign segments[12]  = 7'b010_0100;
+    assign segments[13]  = 7'b100_0110;  // C
+    assign segments[14]  = 7'b001_1001;
+    assign segments[15]  = 7'b000_0110;  // E
+    assign segments[16]  = 7'b000_0010;
+    assign segments[17]  = 7'b111_1000;
+    assign segments[18]  = 7'b000_0000;
+    assign segments[19]  = 7'b001_1000;
+    assign segments[20] = 7'b110_0001;  // J
+    assign segments[21] = 7'b000_0011;
+    assign segments[22] = 7'b100_0111;  // L
     assign segments[23] = 7'b010_0001;
-    assign segments[24] = 7'b000_1001;  // X
-    assign segments[25] = 7'b000_1110;
+    assign segments[24] = 7'b000_0110;
+    assign segments[25] = 7'b100_0000;  // O
     assign segments[26] = 7'b000_1000;
+    assign segments[27] = 7'b000_0011;
+    assign segments[28] = 7'b100_1110;  // R
+    assign segments[29] = 7'b001_0010;  // S
+    assign segments[30] = 7'b000_0110;
+    assign segments[31] = 7'b100_0001;  // U
+    assign segments[32] = 7'b010_0111;
+    assign segments[33] = 7'b010_0001;
+    assign segments[34] = 7'b000_1001;  // X
+    assign segments[35] = 7'b000_1110;
+    assign segments[36] = 7'b000_1000;
      
     always_ff @(posedge clk_in) begin
       // Here I am using a counter and select 3 bits which provides
