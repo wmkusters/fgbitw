@@ -31,9 +31,8 @@ module top_level(
     output logic vga_hs,
     output logic vga_vs,
     output logic [1:0] ja,
-    output logic [7:0] an,
-    output logic dp,
-    output logic ca, cb, cc, cd, ce, cf, cg
+    output logic ca, cb, cc, cd, ce, cf, cg, dp,  // segments a-g, dp
+    output logic[7:0] an    // Display location 0-7
     );
     
     //COMM PARAMS
@@ -134,6 +133,7 @@ module top_level(
 
     logic [PKT_LEN-1:0] rx_bus;
     assign move = my_turn ? move_io : rx_bus;   //muxing btwn I/O move and RX move
+    logic game_over;
     game_fsm game_fsm1(.clk_in(clk_65mhz),
                        .reset(reset),
                        .move_avail(move_avail|rx_ready),
@@ -142,7 +142,8 @@ module top_level(
                        .board_bus(board),
                        .turn(turn),
                        .tx_ready(tx_ready),
-                       .invalid_move(invalid_move));
+                       .invalid_move(invalid_move),
+                       .game_over(game_over));
 
     display display1(.clk(clk_65mhz),
                      .reset(reset),
@@ -179,6 +180,26 @@ module top_level(
                      .rx(jb[0]),
                      .ready(rx_ready),
                      .data_out(rx_bus));  
+    //hex display
+    parameter [5:0] BLANK   = 5'd0;
+    parameter [5:0] C       = 5'd3;
+    parameter [5:0] E       = 5'd5;
+    parameter [5:0] J       = 5'd10;
+    parameter [5:0] L       = 5'd12;
+    parameter [5:0] O       = 5'd15;
+    parameter [5:0] R       = 5'd18;
+    parameter [5:0] S       = 5'd19;
+    parameter [5:0] U       = 5'd21;
+    parameter [5:0] X       = 5'd24;
+    logic [5:0] LOSER [7:0]     = '{    J,     O,     E, BLANK,     R,     O,     X, BLANK};
+    logic [5:0] EMPTY_HEX [7:0] = '{BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK};
+    
+    logic [5:0] seg_data [7:0];      //  instantiate 7-segment display; display (8) 4-bit hex
+    assign seg_data = (game_over) ? LOSER : EMPTY_HEX;
+    logic [6:0] segments;
+    assign {cg, cf, ce, cd, cc, cb, ca} = segments[6:0];
+    display_alphahex display(.clk_in(clk_65mhz),.data_in(seg_data), .seg_out(segments), .strobe_out(an));
+    assign  dp = 1'b1;  // turn off the period
 endmodule
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -229,6 +250,14 @@ module pulser(
     
 endmodule
 
+//////////////////////////////////////////////////////////////////////////////////
+// Engineer:   g.p.hom
+// 
+// Create Date:    18:18:59 04/21/2013 
+// Module Name:    display_8hex 
+// Description:  Display 8 hex numbers on 7 segment display
+//
+//////////////////////////////////////////////////////////////////////////////////
 module display_8hex(
     input clk_in,                 // system clock
     input [31:0] data_in,         // 8 hex numbers, msb first
@@ -298,6 +327,98 @@ module display_8hex(
                   end
           3'b111: begin
                   seg_out <= segments[data_in[3:0]];
+                  strobe_out <= 8'b1111_1110;
+                 end
+
+       endcase
+      end
+
+endmodule
+
+//////////////////////////////////////////////////////////////////////////////////
+//  Display letters on a hex
+//////////////////////////////////////////////////////////////////////////////////
+
+module display_alphahex(
+    input clk_in,                           // system clock
+    input logic [5:0] data_in [7:0],        // 8 letters, msl first
+    output logic [6:0] seg_out,             // seven segment display output
+    output logic [7:0] strobe_out           // digit strobe
+    );
+
+    localparam bits = 13;
+     
+    logic [bits:0] counter = 0;  // clear on power up
+     
+    logic [6:0] segments[26:0]; // 16 7 bit memorys
+    assign segments[0]  = 7'b111_1111;  // inverted logic; gfedcba
+    assign segments[1]  = 7'b111_1001;
+    assign segments[2]  = 7'b010_0100;
+    assign segments[3]  = 7'b100_0110;  // C
+    assign segments[4]  = 7'b001_1001;
+    assign segments[5]  = 7'b000_0110;  // E
+    assign segments[6]  = 7'b000_0010;
+    assign segments[7]  = 7'b111_1000;
+    assign segments[8]  = 7'b000_0000;
+    assign segments[9]  = 7'b001_1000;
+    assign segments[10] = 7'b110_0001;  // J
+    assign segments[11] = 7'b000_0011;
+    assign segments[12] = 7'b100_0111;  // L
+    assign segments[13] = 7'b010_0001;
+    assign segments[14] = 7'b000_0110;
+    assign segments[15] = 7'b100_0000;  // O
+    assign segments[16] = 7'b000_1000;
+    assign segments[17] = 7'b000_0011;
+    assign segments[18] = 7'b100_1110;  // R
+    assign segments[19] = 7'b001_0010;  // S
+    assign segments[20] = 7'b000_0110;
+    assign segments[21] = 7'b100_0001;  // U
+    assign segments[22] = 7'b010_0111;
+    assign segments[23] = 7'b010_0001;
+    assign segments[24] = 7'b000_1001;  // X
+    assign segments[25] = 7'b000_1110;
+    assign segments[26] = 7'b000_1000;
+     
+    always_ff @(posedge clk_in) begin
+      // Here I am using a counter and select 3 bits which provides
+      // a reasonable refresh rate starting the left most digit
+      // and moving left.
+      counter <= counter + 1;
+      case (counter[bits:bits-2])
+          3'b000: begin  // use the MSB 4 bits
+                  seg_out <= segments[data_in[7]];
+                  strobe_out <= 8'b0111_1111 ;
+                 end
+
+          3'b001: begin
+                  seg_out <= segments[data_in[6]];
+                  strobe_out <= 8'b1011_1111 ;
+                 end
+
+          3'b010: begin
+                   seg_out <= segments[data_in[5]];
+                   strobe_out <= 8'b1101_1111 ;
+                  end
+          3'b011: begin
+                  seg_out <= segments[data_in[4]];
+                  strobe_out <= 8'b1110_1111;        
+                 end
+          3'b100: begin
+                  seg_out <= segments[data_in[3]];
+                  strobe_out <= 8'b1111_0111;
+                 end
+
+          3'b101: begin
+                  seg_out <= segments[data_in[2]];
+                  strobe_out <= 8'b1111_1011;
+                 end
+
+          3'b110: begin
+                   seg_out <= segments[data_in[1]];
+                   strobe_out <= 8'b1111_1101;
+                  end
+          3'b111: begin
+                  seg_out <= segments[data_in[0]];
                   strobe_out <= 8'b1111_1110;
                  end
 

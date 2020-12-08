@@ -26,12 +26,17 @@ module game_fsm(
                 output logic [1:0] board_bus [8:0][8:0],
                 output logic turn,
                 output logic tx_ready,
-                output logic invalid_move
+                output logic invalid_move,
+                output logic game_over
     );
     parameter [1:0] e = 2'b00;
-    parameter WAITING       = 3'b001;
-    parameter UPDATE_BUS    = 3'b010;
-    parameter SENDING_MOVE  = 3'b100;
+    parameter WAITING           = 7'b0000001;
+    parameter UPDATE_BUS        = 7'b0000010;
+    parameter SENDING_MOVE      = 7'b0000100;
+    parameter PASS              = 7'b0001000;
+    parameter PASSED_WAITING    = 7'b0010000;
+    parameter GAME_OVER_SEND    = 7'b0100000;
+    parameter GAME_OVER         = 7'b1000000;
     logic [1:0] EMPTY_BOARD [8:0][8:0] =    '{'{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e},
@@ -42,9 +47,11 @@ module game_fsm(
                                             '{e, e, e, e, e, e, e, e, e},
                                             '{e, e, e, e, e, e, e, e, e}};
     logic [1:0] ko_board [8:0][8:0];
-    logic [2:0] state;
+    logic [6:0] state;
     logic [1:0] next_board [8:0][8:0];
     logic update_valid;
+    
+    assign game_over = (state == GAME_OVER);
     
     board_updater prune_update(.clk_in(clk_in),
                                .rst_in(reset),
@@ -69,7 +76,7 @@ module game_fsm(
                 WAITING:
                 begin
                     tx_ready <= 0;
-                    state <= (update_valid ? UPDATE_BUS : state);
+                    state <= update_valid ? ((move == 8'b1111_1111) ? PASS : UPDATE_BUS) : state;
                 end
                 
                 UPDATE_BUS:
@@ -86,7 +93,29 @@ module game_fsm(
                     state <= WAITING;
                 end
                 
-                default: state <= WAITING;
+                PASS:
+                begin
+                    turn <= ~turn;
+                    tx_ready <= (turn == my_color);
+                    state <= PASSED_WAITING;
+                end
+                
+                PASSED_WAITING:
+                begin
+                    tx_ready <= 0;
+                    state <= update_valid ? ((move == 8'b1111_1111) ? GAME_OVER_SEND : UPDATE_BUS) : state;
+                end
+                
+                GAME_OVER_SEND:
+                begin
+                    tx_ready <= (turn == my_color);
+                    state <= GAME_OVER;
+                end
+                
+                GAME_OVER:
+                begin
+                    state <= GAME_OVER;
+                end
             endcase
         end
     end

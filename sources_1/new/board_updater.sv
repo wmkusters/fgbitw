@@ -87,7 +87,7 @@ module board_updater(
             end
             LOAD_BOARD:
             begin
-                state <= LOAD_MOVE;
+                state <= (move_in == 8'b1111_1111) ? VALID_BOARD : LOAD_MOVE;
                 next_board <= board_bus;
             end
             LOAD_MOVE:
