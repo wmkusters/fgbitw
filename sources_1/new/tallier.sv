@@ -7,6 +7,7 @@ module tallier(
    	integer j;
 
 	always_comb begin
+		sum = 8'b0000_0000;
 		for (i = 0; i < 9; i = i + 1) begin
             for (j = 0; j < 9; j = j + 1) begin
             	sum += board[i][j][1] + board[i][j][0];
