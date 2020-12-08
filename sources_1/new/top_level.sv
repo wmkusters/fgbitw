@@ -115,8 +115,9 @@ module top_level(
     logic [1:0] board [8:0][8:0];
     assign my_color = sw[14];
     assign my_turn = (turn == my_color);
-    assign led[8] = my_turn;
+    //assign led[8] = my_turn;
     //assign led[9] = turn;
+    logic [7:0] io_debug_led;
 
     user_io user_io1(.clk_in(clk_65mhz),
                      .reset(reset),
@@ -124,7 +125,7 @@ module top_level(
                      .pass_sw(sw[13]),
                      .up(up_pulse), .down(down_pulse),
                      .right(right_pulse), .left(left_pulse),
-                     .leds(led[7:0]),
+                     .leds(io_debug_led),
                      .make_move(move_btn_pulse),
                      .board(board),
                      .move_ready(move_avail),
@@ -205,7 +206,8 @@ module top_level(
                      
     //hex display
     logic [5:0] seg_data [7:0];
-    assign led[15:9] = fsm_state;
+    assign led[15:8] = game_over ? 8'hFF : {my_turn, my_turn, my_turn, my_turn, my_turn, my_turn, my_turn, my_turn};
+    assign led[7:0] = game_over ? 8'hFF : {~my_turn, ~my_turn, ~my_turn, ~my_turn, ~my_turn, ~my_turn, ~my_turn, ~my_turn};
     
     seg_disp(.game_over(game_over),
              .my_color(my_color),

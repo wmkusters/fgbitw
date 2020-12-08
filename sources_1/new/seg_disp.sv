@@ -58,8 +58,12 @@ module seg_disp(
     logic [5:0] PASS_Q   [7:0]   = '{    P,     A,     S,     S,     Q, BLANK, BLANK, BLANK};
     logic [5:0] END_GAME_Q [7:0] = '{    E,     N,     D,     Q, BLANK, BLANK, BLANK, BLANK};
     logic [5:0] PASSED [7:0]     = '{    P,     A,     S,     S,     E,     D, BLANK, BLANK};
+    logic [5:0] bterr_data [7:0];
+    assign bterr_data = '{black_ten, black_one, BLANK, BLANK, BLANK, BLANK, white_ten, white_one};
+    logic [5:0] wterr_data [7:0];
+    assign wterr_data = '{white_ten, white_one, BLANK, BLANK, BLANK, BLANK, black_ten, black_one};
     logic [5:0] terr_data [7:0];
-    assign terr_data = '{black_ten, black_one, BLANK, BLANK, BLANK, BLANK, white_ten, white_one};
+    assign terr_data = my_color ? wterr_data : bterr_data;
     
     logic [3:0] white_ten, white_one, black_ten, black_one; 
     byte_to_dec converter_white(.byte_in(wcount),
