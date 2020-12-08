@@ -3,7 +3,7 @@ from __future__ import print_function
 from dlgo import agent
 from dlgo import goboard_slow as goboard
 from dlgo import gotypes
-from dlgo.utils import print_board, print_move, point_from_coords
+from dlgo.utils import print_board, print_move, point_from_coords, COLS
 from six.moves import input
 
 import serial.tools.list_ports
@@ -30,42 +30,42 @@ def get_usb_port():
             print("USB-Serial Controller: Device {}".format(p))
             return port_dict[usb_id][0].device
 
-s = get_usb_port()  #grab a port
-print("USB Port: "+str(s)) #print it if you got
-if s:
-    ser = serial.Serial(port = s,
-        baudrate=9600,
-        parity=serial.PARITY_NONE,
-        stopbits=serial.STOPBITS_ONE,
-        bytesize=serial.EIGHTBITS,
-        timeout=0.01) #auto-connects already I guess?
-    print("Serial Connected!")
-    if ser.isOpen():
-         print(ser.name + ' is open...')
-else:
-    print("No Serial Device :/ Check USB cable connections/device!")
-    exit()
+# s = get_usb_port()  #grab a port
+# print("USB Port: "+str(s)) #print it if you got
+# if s:
+#     ser = serial.Serial(port = s,
+#         baudrate=9600,
+#         parity=serial.PARITY_NONE,
+#         stopbits=serial.STOPBITS_ONE,
+#         bytesize=serial.EIGHTBITS,
+#         timeout=0.01) #auto-connects already I guess?
+#     print("Serial Connected!")
+#     if ser.isOpen():
+#          print(ser.name + ' is open...')
+# else:
+#     print("No Serial Device :/ Check USB cable connections/device!")
+#     exit()
 
-try:
-    print("Reading...")
-    turn = True
-    while True:
-        if not turn:
-            read_data = ser.read(1) #read the buffer (99/100 timeout will hit)
-            if read_data != b'':  #if not nothing there.
-                print("RXd: ")
-                print(bin(int(read_data, base=16)))
-                turn = not turn
-        else:
-            move = input("move: ")
-            high_nibble = move[0]
-            low_nibble = move[1]
-            write_data = (int(high_nibble)*16 + int(low_nibble)).to_bytes(1, byteorder="big")
-            ser.write(write_data)
-            turn = not turn
+# try:
+#     print("Reading...")
+#     turn = True
+#     while True:
+#         if not turn:
+#             read_data = ser.read(1) #read the buffer (99/100 timeout will hit)
+#             if read_data != b'':  #if not nothing there.
+#                 print("RXd: ")
+#                 print(bin(int(read_data, base=16)))
+#                 turn = not turn
+#         else:
+#             move = input("move: ")
+#             high_nibble = move[0]
+#             low_nibble = move[1]
+#             write_data = (int(high_nibble)*16 + int(low_nibble)).to_bytes(1, byteorder="big")
+#             ser.write(write_data)
+#             turn = not turn
 
-except Exception as e:
-    print(e)
+# except Exception as e:
+#     print(e)
 
 
 
@@ -100,14 +100,21 @@ def main():
             # human_move = input('-- ')
             read_data = ser.read(1) #read the buffer (99/100 timeout will hit)
             if read_data != b'':  #if not nothing there.
-                fpga_move = bin(int(read_data, base=16))
+                fpga_move = str(read_data)[-3:-1]
+                fpga_row = int(fpga_move[1])
+                fpga_col = int(fpga_move[0])
+                form_move = COLS[fpga_col] + str(fpga_row)
                 print("RXd: ")
-                print(fpga_move)
+                print(form_move)
+                point = point_from_coords(form_move.strip())
+                move = goboard.Move.play(point)
                 break
+        else:
+            # move = bot.select_move(game)
+            human_move = input('-- ')
             point = point_from_coords(human_move.strip())
             move = goboard.Move.play(point)
-        else:
-            move = bot.select_move(game)
+ 
         print_move(game.next_player, move)
         game = game.apply_move(move)
 
