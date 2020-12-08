@@ -7,6 +7,7 @@ from dlgo.utils import print_board, print_move, point_from_coords, COLS
 from six.moves import input
 
 import serial.tools.list_ports
+import time
 
 def get_usb_port():
     usb_port = list(serial.tools.list_ports.grep("Leon"))
@@ -111,16 +112,15 @@ def main():
                     move = goboard.Move.play(point)
                     break
         else:
-            # move = bot.select_move(game)
-            human_move = input('-- ')
-            human_move = human_move.strip()
-            low_nibble = COLS.find(human_move[0])
-            high_nibble = human_move[1]
+            move = bot.select_move(game)
+            low_nibble = move.point.col-1
+            high_nibble = move.point.row 
+            # low_nibble = COLS.find(human_move[0])
+            # high_nibble = human_move[1]
+            time.sleep(1)
             write_data = (abs((int(high_nibble)-9))*16 + (int(low_nibble))).to_bytes(1, byteorder="big")
             print(write_data)
             ser.write(write_data)
-            point = point_from_coords(human_move)
-            move = goboard.Move.play(point)
  
         print_move(game.next_player, move)
         game = game.apply_move(move)
