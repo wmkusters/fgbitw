@@ -170,14 +170,18 @@ module top_level(
     parameter [5:0] S       = 5'd19;
     parameter [5:0] U       = 5'd21;
     parameter [5:0] X       = 5'd24;
-    logic [5:0] LOSER [7:0]     = '{    J,     O,     E, BLANK,     R,     O,     X, BLANK};
+    //logic [5:0] LOSER [7:0]     = '{    J,     O,     E, BLANK,     R,     O,     X, BLANK};
     logic [5:0] EMPTY_HEX [7:0] = '{BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK};
     
     logic [5:0] seg_data [7:0];      //  instantiate 7-segment display; display (8) 4-bit hex
-    assign seg_data = (game_over) ? LOSER : EMPTY_HEX;
+    //assign seg_data = (game_over) ? LOSER : EMPTY_HEX;
+    logic [31:0] seg_8data;
+    assign seg_8data = {4'b0, black_terr_count, 4'b0, 4'b0, white_terr_count, 4'b0};
+    
     logic [6:0] segments;
     assign {cg, cf, ce, cd, cc, cb, ca} = segments[6:0];
-    display_alphahex display(.clk_in(clk_65mhz),.data_in(seg_data), .seg_out(segments), .strobe_out(an));
+    //display_alphahex displayAlph(.clk_in(clk_65mhz),.data_in(seg_data), .seg_out(segments), .strobe_out(an));
+    display_8hex displayHex(.clk_in(clk_65mhz),.data_in(seg_8data), .seg_out(segments), .strobe_out(an));
     assign  dp = 1'b1;  // turn off the period
 
 endmodule
