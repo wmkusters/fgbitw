@@ -223,10 +223,11 @@ module top_level(
                                 .dec_out_one(black_one));
 
     logic [5:0] seg_data [7:0];      //  instantiate 7-segment display; display (8) 4-bit hex
-    assign seg_data = (game_over) ? LOSER : seg_data;
+    assign seg_data = (game_over) ? LOSER : terr_data;
     // logic [31:0] seg_8data;
     // assign seg_8data = {4'b0, black_ten, black_one, 4'b0, 4'b0, white_ten, white_one, 4'b0};
-    assign seg_data = '{black_ten, black_one, BLANK, BLANK, BLANK, BLANK, white_ten, white_one}; 
+    logic [5:0] terr_data [7:0];
+    assign terr_data = '{black_ten, black_one, BLANK, BLANK, BLANK, BLANK, white_ten, white_one}; 
     logic [6:0] segments;
     assign {cg, cf, ce, cd, cc, cb, ca} = segments[6:0];
     //display_alphahex displayAlph(.clk_in(clk_65mhz),.data_in(seg_data), .seg_out(segments), .strobe_out(an));
@@ -294,7 +295,7 @@ endmodule
 
 module display_alphaNumhex(
     input clk_in,                           // system clock
-    input logic [6:0] data_in [7:0],        // 8 letters\numbers, msl first
+    input logic [5:0] data_in [7:0],        // 8 letters\numbers, msl first
     output logic [6:0] seg_out,             // seven segment display output
     output logic [7:0] strobe_out           // digit strobe
     );
