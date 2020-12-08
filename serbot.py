@@ -94,25 +94,32 @@ def main():
 
     while not game.is_over():
         print(chr(27) + "[2J")
-        # print_board(game.board)
+        print_board(game.board)
         if game.next_player == gotypes.Player.black: 
             while True:
-            # human_move = input('-- ')
-            read_data = ser.read(1) #read the buffer (99/100 timeout will hit)
-            if read_data != b'':  #if not nothing there.
-                fpga_move = str(read_data)[-3:-1]
-                fpga_row = int(fpga_move[1])
-                fpga_col = int(fpga_move[0])
-                form_move = COLS[fpga_col] + str(fpga_row)
-                print("RXd: ")
-                print(form_move)
-                point = point_from_coords(form_move.strip())
-                move = goboard.Move.play(point)
-                break
+                # human_move = input('-- ')
+                read_data = ser.read(1) #read the buffer (99/100 timeout will hit)
+                if read_data != b'':  #if not nothing there.
+                    fpga_move = read_data.hex()
+                    fpga_row = 10 - (int(fpga_move[0], base=16) + 1)
+                    fpga_col = int(fpga_move[1], base=16)
+                    col = COLS[fpga_col]
+                    print(col, fpga_row)
+                    print("RXd: ")
+                    print(fpga_move)
+                    point = point_from_coords(col + str(fpga_row))
+                    move = goboard.Move.play(point)
+                    break
         else:
             # move = bot.select_move(game)
             human_move = input('-- ')
-            point = point_from_coords(human_move.strip())
+            human_move = human_move.strip()
+            low_nibble = COLS.find(human_move[0])
+            high_nibble = human_move[1]
+            write_data = (abs((int(high_nibble)-9))*16 + (int(low_nibble))).to_bytes(1, byteorder="big")
+            print(write_data)
+            ser.write(write_data)
+            point = point_from_coords(human_move)
             move = goboard.Move.play(point)
  
         print_move(game.next_player, move)
