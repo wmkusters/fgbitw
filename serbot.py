@@ -1,8 +1,9 @@
 from __future__ import print_function
 # tag::play_against_your_bot[]
 from dlgo import agent
-from dlgo import goboard_slow as goboard
+from dlgo import goboard_fast as goboard
 from dlgo import gotypes
+from dlgo import mcts
 from dlgo.utils import print_board, print_move, point_from_coords, COLS
 from six.moves import input
 
@@ -30,6 +31,29 @@ def get_usb_port():
             print("Found it")
             print("USB-Serial Controller: Device {}".format(p))
             return port_dict[usb_id][0].device
+
+BOARD_SIZE = 9
+
+
+# tag::naive-board-heuristic[]
+def capture_diff(game_state):
+    black_stones = 0
+    white_stones = 0
+    for r in range(1, game_state.board.num_rows + 1):
+        for c in range(1, game_state.board.num_cols + 1):
+            p = gotypes.Point(r, c)
+            color = game_state.board.get(p)
+            if color == gotypes.Player.black:
+                black_stones += 1
+            elif color == gotypes.Player.white:
+                white_stones += 1
+    diff = black_stones - white_stones
+    if game_state.next_player == gotypes.Player.black:
+        return diff
+    return -1 * diff
+
+# end::naive-board-heuristic[]
+
 
 # s = get_usb_port()  #grab a port
 # print("USB Port: "+str(s)) #print it if you got
@@ -72,9 +96,8 @@ def get_usb_port():
 
 
 def main():
-    board_size = 9
-    game = goboard.GameState.new_game(board_size)
-    bot = agent.RandomBot()
+    game = goboard.GameState.new_game(BOARD_SIZE)
+    bot = mcts.MCTSAgent(500, temperature=1.4)
 
     s = get_usb_port()  #grab a port
     print("USB Port: "+str(s)) #print it if you got
@@ -102,6 +125,12 @@ def main():
                 read_data = ser.read(1) #read the buffer (99/100 timeout will hit)
                 if read_data != b'':  #if not nothing there.
                     fpga_move = read_data.hex()
+                    if fpga_move == "ff":
+                        move = goboard.Move.pass_turn()
+                        fpga_passed = True
+                        break
+                    else:
+                        fpga_passed = False
                     fpga_row = 10 - (int(fpga_move[0], base=16) + 1)
                     fpga_col = int(fpga_move[1], base=16)
                     col = COLS[fpga_col]
@@ -110,15 +139,23 @@ def main():
                     print(fpga_move)
                     point = point_from_coords(col + str(fpga_row))
                     move = goboard.Move.play(point)
+                    fpga_move = move
                     break
         else:
             move = bot.select_move(game)
-            low_nibble = move.point.col-1
-            high_nibble = move.point.row 
-            # low_nibble = COLS.find(human_move[0])
-            # high_nibble = human_move[1]
-            time.sleep(1)
-            write_data = (abs((int(high_nibble)-9))*16 + (int(low_nibble))).to_bytes(1, byteorder="big")
+            if move.is_pass:
+                low_nibble = 15
+                high_nibble = 15
+            else:
+                low_nibble = move.point.col-1
+                high_nibble = move.point.row 
+            time.sleep(.5               )
+            if fpga_passed:
+                move = goboard.Move.pass_turn()
+            if move.is_pass:
+                write_data = (255).to_bytes(1, byteorder="big")
+            else:
+                write_data = (abs((int(high_nibble)-9))*16 + (int(low_nibble))).to_bytes(1, byteorder="big")
             print(write_data)
             ser.write(write_data)
  
