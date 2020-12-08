@@ -114,6 +114,7 @@ module game_fsm(
                 
                 GAME_OVER:
                 begin
+                    tx_ready <= 0;
                     state <= GAME_OVER;
                 end
             endcase
