@@ -102,6 +102,27 @@ module top_level(
                        .invalid_move(invalid_move),
                        .game_over(game_over));
 
+    logic turn_fall_pulse;
+    logic turn_rise_pulse;
+    
+    pulser turn_fall(.trigger_in(~turn), .clk_in(clk_65mhz), .pulse_out(turn_fall_pulse));
+    pulser turn_rise(.trigger_in(turn), .clk_in(clk_65mhz), .pulse_out(turn_rise_pulse));
+    
+    logic turn_sw_pulse;
+    assign turn_sw_pulse = turn_fall_pulse | turn_rise_pulse;
+    
+    logic [7:0] black_terr_count;
+    logic [7:0] white_terr_count;
+    logic terr_ready_flag;
+    
+    territory_counter nicks_tc (.clk_in(clk_65mhz),
+                                .rst_in(reset),
+                                .board_state(board),
+                                .update_pulse(turn_sw_pulse),
+                                .bcount_out(black_terr_count),
+                                .wcount_out(white_terr_count),
+                                .terr_ready(terr_ready_flag));
+
     display display1(.clk(clk_65mhz),
                      .reset(reset),
                      .sw(sw),
